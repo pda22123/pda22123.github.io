@@ -11,6 +11,17 @@
         });
     </script>
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v7.0.0/dist/aframe-extras.min.js"></script>
+    <script>
+        AFRAME.registerComponent('flying', {
+            tick:function () {
+                if (Math.random() < 0.5) return;
+                var x = Math.random() * 100 - 50;
+                var y = Math.random() * 3 + 3;
+                var z = Math.random() * 100 - 50;
+                this.el.setAttribute('animation', 'property: position; to: ' + x + ' ' + y + ' ' + z);
+            }
+        });
+    </script>
 </head>
 <body>
         <a-scene id="s1" background="color:#0d0928" fog="far:300" shadow="type: pcfsoft">
@@ -27,8 +38,10 @@
     <audio id="hawk" src="Hawk Call 2x-SoundBible.com-1697796838.mp3"></audio>
     <audio id="bzzz" src="Bee-SoundBible.com-914644763.mp3"></audio>
 </a-assets>
-<a-entity gltf-model="#bird" scale="5 5 5" shadow="receive: false" position="-50 25 -50" sound="src:#hawk; poolSize: 2" sounding></a-entity>
-<a-entity gltf-model="#bird" scale="5 5 5" shadow="receive: false" position="50 25 -50" rotation="0 180 0" sound="src:#hawk; poolSize: 2" sounding></a-entity>
+<a-entity gltf-model="#bird" scale="5 5 5" shadow="receive: false" position="-50 25 -50" sound="src:#hawk; poolSize: 2" sounding
+    animation="property: position; from: -50 50 -500; to: -50 50 500; dur: 25000; loop: true" animation-mixer></a-entity>
+<a-entity gltf-model="#bird" scale="5 5 5" shadow="receive: false" position="50 25 -50" rotation="0 180 0" sound="src:#hawk; poolSize: 2" sounding
+    animation="property: position; from: 50 50 500; to: 50 50 -500; dur: 33000; loop:true" animation-mixer></a-entity>
 </a-scene>
 <script>
 var scene1 = document.getElementById('s1');
@@ -58,6 +71,7 @@ var scene1 = document.getElementById('s1');
         bee.setAttribute('rotation', '0 ' + r + ' 0');
         bee.setAttribute('sound', 'src:#bzzz; volume: 0.1; poolSize: 10');
         bee.setAttribute('sounding', '');
+        bee.setAttribute('flying', '');
         scene1.appendChild(bee);
     }
 </script>
