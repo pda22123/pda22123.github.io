@@ -1,86 +1,31 @@
 <html>
 <head>
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-    <script>
-        AFRAME.registerComponent('sounding', {
-            tick: function () {
-                if (Math.random() < 0.99) return;
-                var sound = this.el.components.sound;
-                if (sound) sound.playSound();
-            }
-        });
-    </script>
-    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v7.0.0/dist/aframe-extras.min.js"></script>
-    <script>
-        AFRAME.registerComponent('flying', {
-            tick: function () {
-                if (Math.random() < 0.5) return;
-                var x = Math.random() * 100 - 50;
-                var y = Math.random() * 3 + 3;
-                var z = Math.random() * 100 - 50;
-                this.el.setAttribute('animation', 'property: position; to: ' + x + ' ' + y + ' ' + z);
-            }
-        });
-    </script>
-    <script src="https://unpkg.com/@croquet/croquet"></script>
-    <script src="https://unpkg.com/aframe-croquet-component/public/lib/aframe-croquet-component.js"></script>
+    <script src="https://c-frame.github.io/aframe-physics-system/dist/aframe-physics-system.js"></script>
 </head>
 <body>
-    <template id="avatarTemplate">
-    <a-entity glb-model="#witch" scale="5 5 5" rotation="0 180 0"></a-entity>
-    </template>
-    <a-scene id="s1" background="color:#0d0928" fog="far:300" shadow="type: pcfsoft" croquet>
-        <a-entity id="rig">
-            <a-camera position="0 3 0"></a-camera>
-        </a-entity>
-                <a-sphere radius="500" position="0 5000 0" material="fog: false"></a-sphere>
-                <a-entity position="0 250 0" light="type: directional; intensity: 0.5; castShadow: true; shadowCameraBottom: -500; shadowCameraTop: 500; shadowCameraLeft: -500; shadowCameraRight: 500"></a-entity>
-                <a-light type="ambient" intensity="0.25"></a-light>
-                <a-plane color="#2a1c0e" height="1000" width="1000" rotation="-90 0 0" metalness="0" shadow></a-plane>
-<a-assets>
-    <a-asset-item id="tree" src="tree.gltf"></a-asset-item>
-    <a-asset-item id="bird" src="bird.gltf"></a-asset-item>
-    <a-asset-item id="bee" src="bee.gltf"></a-asset-item>
-    <a-asset-item id="witch" src="witch.glb"></a-asset-item>
-    <audio id="hawk" src="Hawk Call 2x-SoundBible.com-1697796838.mp3"></audio>
-    <audio id="bzzz" src="Bee-SoundBible.com-914644763.mp3"></audio>
-</a-assets>
-<a-entity gltf-model="#bird" scale="5 5 5" shadow="receive: false" position="-50 25 -50" sound="src:#hawk; poolSize: 2" sounding
-    animation="property: position; from: -50 50 -500; to: -50 50 500; dur: 25000; loop: true" animation-mixer></a-entity>
-<a-entity gltf-model="#bird" scale="5 5 5" shadow="receive: false" position="50 25 -50" rotation="0 180 0" sound="src:#hawk; poolSize: 2" sounding
-    animation="property: position; from: 50 50 500; to: 50 50 -500; dur: 33000; loop:true" animation-mixer></a-entity>
-</a-scene>
-<script>
-var scene1 = document.getElementById('s1');
-    for (var i = 0; i < 500; i++) {
-        var tree = document.createElement('a-entity');
-        var x = Math.random() * 800 - 400;
-        var z = Math.random() * 800 - 400;
-        var s = Math.random() * 15 + 5;
-        var r = Math.random() * 180 - 90;
-        tree.setAttribute('gltf-model', '#tree');
-        tree.setAttribute('position', x + ' 0 ' + z);
-        tree.setAttribute('scale', s + ' ' + s + ' ' + s);
-        tree.setAttribute('rotation', '0 ' + r + ' 0');
-        tree.setAttribute('shadow', 'receive: false');
-        scene1.appendChild(tree);
-    }
-
-    for (var i = 0; i < 10; i++) {
-        var bee = document.createElement('a-entity');
-        var x = Math.random() * 10 - 5;
-        var y = Math.random() * 3 + 3;
-        var z = Math.random() * 10 - 5;
-        var r = Math.random() * 180 - 90;
-        bee.setAttribute('gltf-model', '#bee');
-        bee.setAttribute('position', x + ' ' + y + ' ' + z);
-        bee.setAttribute('scale', '0.01 0.01 0.01');
-        bee.setAttribute('rotation', '0 ' + r + ' 0');
-        bee.setAttribute('sound', 'src:#bzzz; volume: 0.1; poolSize: 10');
-        bee.setAttribute('sounding', '');
-        bee.setAttribute('flying', '');
-        scene1.appendChild(bee);
-    }
+    <a-scene id="s1" fog="color: silver; near: 0" animation="property: fog.far; to: 5; dur:50000; easing: easyOutQuad">
+        <a-plane static-body width="40" height="8" position="-20 4 0" rotation="0 90 0">
+            <a-box id="window" color="silver" opacity="0.5" scale="1.25 1.25 0.5" position="-15 2 -0.2"
+                sound="src: url(mixkit-glass-break-with-hammer-thud-759.wav)">
+                <a-light distance="1" type="spot" position="0 0 1"></a-light>
+                <a-light angle="90" intensity="0.01" type="spot" position="0 0 -1" rotation="180 0 0"></a-light>
+            </a-box>
+         </a-plane>
+    <a-plane static-body-width="40" height="8" position="20 4 0" rotation="0 -90 0"></a-plane>
+    <a-plane static-body-width="40" height="8" position="0 4 20" material="side:back"></a-plane>
+    <a-plane static-body-width="40" height="8" position="0 4 -20"></a-plane>
+    <a-plane static-body-width="40" height="8" position="0 0 0" rotation="-90 0 0"></a-plane>
+    <a-plane static-body-width="40" height="8" position="0 8 0" rotation="90 0 0"></a-plane>
+    <a-plane id="door" height="4" width="2" color="darkgreen" position="0 2 -19.9" sound="src: url(mixkit-locking-a-shop-door-with-keys-202.wav)">
+        <a-ring color="black" radius-inner="0.01" radius-outer="0.1" position="0.75 0 0.01"></a-ring>
+    </a-plane>
+    <a-camera id="cam">
+        <a-text value="" align="center" geometry="primitive: plane; width: 0; height: 1" position="0 0.5 -1" material="opacity: 0"></a-text>
+        <a-cone static-body height="2" position="0 -1 0"></a-cone>
+        <a-cursor color="yellow" fuse="true" far="10"></a-cursor>
+        <a-light id="light" distance="20" intensity="0.25" type="spot" penumbra="0.5" visible="false"></a-light>
+    </a-camera>
 </script>
 </body>
 </html>
