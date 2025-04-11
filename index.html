@@ -12,15 +12,23 @@
 
 <body>
      <a-scene id="s1" background="color:#0d0928">     
-    <a-entity position="0 0 0"
+    <a-entity position="0 0 0">
         <a-plane id="door" height="4" width="2" color="darkgreen" position="0 2 -19.9"
             sound="src: url(mixkit-locking-a-shop-door-with-keys-202.wav)" focusing>
            
             <a-camera id="cam">
+
+                <a-asset-item id="ονομα" src="ονομα.gltf></a-asset-item>
+
+<a-scene>
+    <a-box id="redBox" class="clickable" color="red"></a-box>
+    <a-sphere class="clickable" color="blue"></a-sphere>
+    <a-box color="green"></a-box>
+    <a-entity light="type: ambient"></a-entity>
+    <a-entity light="type: directional"></a-entity>
+  </a-scene>
                
-    <script>
-      
-    </script>
+   
 </body>
 
 </html>
