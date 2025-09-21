@@ -47,7 +47,7 @@
       padding:10px 16px; border-radius:8px; background:#ff5678; color:#fff; border:none; font-weight:700; cursor:pointer;
     }
 
-    /* Small helper text */
+    /* Small helper text at bottom-left for debug */
     #debugHint { position:fixed; left:12px; bottom:12px; z-index:9998; color:#fff; font-size:13px; opacity:0.8; }
   </style>
 </head>
@@ -71,64 +71,117 @@
   <div id="recipePanel"></div>
   <div id="loadingBarContainer"><div id="loadingBar"></div></div>
   <button id="quitButton" onclick="quitGame()">Quit</button>
-  <div id="debugHint">Click ingredients to collect them</div>
+  <div id="debugHint">Open Console (F12) for model logs</div>
 
-  <!-- A-Frame Scene -->
+  <!-- A-Frame Scene — keep your Blender transforms intact -->
   <a-scene id="scene" physics="gravity: -9.8;" style="display:none;">
-    <!-- Player rig: kept exactly as your code -->
-    <a-entity id="rig" position="0 20 8" movement-controls="speed:6" kinematic-body>
-      <a-camera id="firstPersonCam" look-controls camera="active:true" cursor="rayOrigin:mouse">
-        <a-cursor fuse="false" material="color:black; shader:flat"></a-cursor>
+    <!-- VERY TALL + FAST player rig (change constants in JS if you want different) -->
+    <!-- We keep world objects untouched; only camera height and speed change -->
+    <a-entity id="rig" position="0 20 8" movement-controls="speed:30">
+      <a-camera id="firstPersonCam" look-controls camera="active:true">
+        <a-cursor rayOrigin="mouse" fuse="false" material="color:black; shader:flat"></a-cursor>
       </a-camera>
     </a-entity>
 
+    <!-- Debug top-down cam (press C toggle in script) -->
     <a-entity id="topDownCam" position="0 80 80" rotation="-45 0 0" camera="active:false"></a-entity>
 
+    <!-- Lighting: stronger lights because tall camera may require it -->
     <a-entity light="type:ambient; intensity:0.8"></a-entity>
     <a-entity light="type:directional; intensity:1.0" position="10 50 20"></a-entity>
 
-    <!-- Environment objects with colliders -->
-    <a-entity id="e_floor" gltf-model="floor.glb" static-body></a-entity>
-    <a-entity id="e_fridge" gltf-model="fridge.glb" static-body></a-entity>
-    <a-entity id="e_countertopdecor" gltf-model="countertopdecor.glb" static-body></a-entity>
-    <a-entity id="e_mixingbowl" gltf-model="mixingbowl.glb" static-body></a-entity>
-    <a-entity id="e_stove" gltf-model="stove.glb" static-body></a-entity>
-    <a-entity id="e_backwall" gltf-model="backwall.glb" static-body></a-entity>
-    <a-entity id="e_frontwall" gltf-model="frontwall.glb" static-body></a-entity>
-    <a-entity id="e_leftwall" gltf-model="leftwall.glb" static-body></a-entity>
-    <a-entity id="e_rightwall" gltf-model="rightwall.glb" static-body></a-entity>
-    <a-entity id="e_windowdecor" gltf-model="windowdecor.glb" static-body></a-entity>
-    <a-entity id="e_light" gltf-model="light.glb" static-body></a-entity>
-    <a-entity id="e_wallclock" gltf-model="wallclock.glb" static-body></a-entity>
-    <a-entity id="e_walldecor" gltf-model="walldecor.glb" static-body></a-entity>
-    <a-entity id="e_walllines" gltf-model="walllines.glb" static-body></a-entity>
-    <a-entity id="e_rollingpin" gltf-model="rollingpin.glb" static-body></a-entity>
-    <a-entity id="e_smallplate" gltf-model="smallplate.glb" static-body></a-entity>
-    <a-entity id="e_stool" gltf-model="stool.glb" static-body></a-entity>
-    <a-entity id="e_pan" gltf-model="pan.glb" static-body></a-entity>
-    <a-entity id="e_plate" gltf-model="plate.glb" static-body></a-entity>
-    <a-entity id="e_mug1" gltf-model="mug1.glb" static-body></a-entity>
-    <a-entity id="e_eggcarton" gltf-model="eggcarton.glb" static-body></a-entity>
-    <a-entity id="e_chefhat" gltf-model="chefhat.glb" static-body></a-entity>
-    <a-entity id="e_exhaustfan" gltf-model="exhaustfan.glb" static-body></a-entity>
-    <a-entity id="e_cuttingboard" gltf-model="cuttingboard.glb" static-body></a-entity>
+    <!-- YOUR BLENDER-EXPORTED OBJECTS — do NOT change positions/scales here -->
+    <!-- Keep these file names exact as uploaded to the same folder as index.html -->
+    <a-entity id="e_floor" gltf-model="floor.glb"></a-entity>
+    <a-entity id="e_fridge" gltf-model="fridge.glb"></a-entity>
+    <a-entity id="e_countertopdecor" gltf-model="countertopdecor.glb"></a-entity>
+    <a-entity id="e_mixingbowl" gltf-model="mixingbowl.glb"></a-entity>
+    <a-entity id="e_stove" gltf-model="stove.glb"></a-entity>
+    <a-entity id="e_backwall" gltf-model="backwall.glb"></a-entity>
+    <a-entity id="e_frontwall" gltf-model="frontwall.glb"></a-entity>
+    <a-entity id="e_leftwall" gltf-model="leftwall.glb"></a-entity>
+    <a-entity id="e_rightwall" gltf-model="rightwall.glb"></a-entity>
+    <a-entity id="e_windowdecor" gltf-model="windowdecor.glb"></a-entity>
+    <a-entity id="e_light" gltf-model="light.glb"></a-entity>
+    <a-entity id="e_wallclock" gltf-model="wallclock.glb"></a-entity>
+    <a-entity id="e_walldecor" gltf-model="walldecor.glb"></a-entity>
+    <a-entity id="e_walllines" gltf-model="walllines.glb"></a-entity>
+    <a-entity id="e_rollingpin" gltf-model="rollingpin.glb"></a-entity>
+    <a-entity id="e_smallplate" gltf-model="smallplate.glb"></a-entity>
+    <a-entity id="e_stool" gltf-model="stool.glb"></a-entity>
+    <a-entity id="e_pan" gltf-model="pan.glb"></a-entity>
+    <a-entity id="e_plate" gltf-model="plate.glb"></a-entity>
+    <a-entity id="e_mug1" gltf-model="mug1.glb"></a-entity>
+    <a-entity id="e_eggcarton" gltf-model="eggcarton.glb"></a-entity>
+    <a-entity id="e_chefhat" gltf-model="chefhat.glb"></a-entity>
+    <a-entity id="e_exhaustfan" gltf-model="exhaustfan.glb"></a-entity>
+    <a-entity id="e_cuttingboard" gltf-model="cuttingboard.glb"></a-entity>
 
-    <!-- Collectables -->
-    <a-entity id="flour" gltf-model="flour.glb" class="collectable" collectable data-name="flour" static-body></a-entity>
-    <a-entity id="sugar" gltf-model="sugar.glb" class="collectable" collectable data-name="sugar" static-body></a-entity>
-    <a-entity id="butter" gltf-model="butter.glb" class="collectable" collectable data-name="butter" static-body></a-entity>
-    <a-entity id="milk" gltf-model="milk.glb" class="collectable" collectable data-name="milk" static-body></a-entity>
-    <a-entity id="chocolate" gltf-model="chocolate.glb" class="collectable" collectable data-name="chocolate" static-body></a-entity>
-    <a-entity id="strawberry" gltf-model="strawberry.glb" class="collectable" collectable data-name="strawberry" static-body></a-entity>
-    <a-entity id="vanilla" gltf-model="vanilla.glb" class="collectable" collectable data-name="vanilla" static-body></a-entity>
-    <a-entity id="whisk" gltf-model="whisk.glb" class="collectable" collectable data-name="whisk" static-body></a-entity>
+    <!-- Collectables: keep the exported transforms — but give them clickability -->
+    <a-entity id="flour" gltf-model="flour.glb" class="collectable" collectable data-name="flour"></a-entity>
+    <a-entity id="sugar" gltf-model="sugar.glb" class="collectable" collectable data-name="sugar"></a-entity>
+    <a-entity id="butter" gltf-model="butter.glb" class="collectable" collectable data-name="butter"></a-entity>
+    <a-entity id="milk" gltf-model="milk.glb" class="collectable" collectable data-name="milk"></a-entity>
+    <a-entity id="chocolate" gltf-model="chocolate.glb" class="collectable" collectable data-name="chocolate"></a-entity>
+    <a-entity id="strawberry" gltf-model="strawberry.glb" class="collectable" collectable data-name="strawberry"></a-entity>
+    <a-entity id="vanilla" gltf-model="vanilla.glb" class="collectable" collectable data-name="vanilla"></a-entity>
+    <a-entity id="whisk" gltf-model="whisk.glb" class="collectable" collectable data-name="whisk"></a-entity>
+
   </a-scene>
 
   <script>
+    // -------------------------
+    // CONFIG: change these to taste
+    // -------------------------
+    const PLAYER_HEIGHT = 50; // Y position of rig (very tall). Change smaller/larger as needed.
+    const PLAYER_SPEED = 100;  // movement-controls speed (very fast). Tune as desired.
+
+    // -------------------------
+    // State
+    // -------------------------
     let currentIngredients = [];
     let currentCake = "";
     const recipePanel = document.getElementById('recipePanel');
+    const loadingBarContainer = document.getElementById('loadingBarContainer');
+    const loadingBar = document.getElementById('loadingBar');
 
+    // -------------------------
+    // Initialize: set player height & speed programmatically
+    // -------------------------
+    window.addEventListener('load', () => {
+      const rig = document.getElementById('rig');
+      // place rig very high (PLAYER_HEIGHT) but keep X/Z as initial values
+      const pos = rig.getAttribute('position') || {x:0,y:1.6,z:5};
+      rig.setAttribute('position', { x: pos.x || 0, y: PLAYER_HEIGHT, z: pos.z || 8 });
+      rig.setAttribute('movement-controls', `speed: ${PLAYER_SPEED}`);
+
+      // Debug: add model-loaded listeners to each gltf entity so we can log sizes
+      document.querySelectorAll('a-entity[gltf-model]').forEach(ent => {
+        ent.addEventListener('model-loaded', (evt) => {
+          try {
+            const mesh = evt.detail.model;
+            // compute bounding box size
+            const box = new THREE.Box3().setFromObject(mesh);
+            const size = new THREE.Vector3();
+            box.getSize(size);
+            console.log(`[model-loaded] ${ent.id || ent.getAttribute('gltf-model')}: size`, size);
+            // if size is tiny (<0.01), warn user (some Blender exports are tiny)
+            if (size.length() < 0.01) {
+              console.warn(`[model-loaded] ${ent.id || ent.getAttribute('gltf-model')} appears extremely small — consider scaling in Blender or adjusting rig height.`);
+            }
+          } catch(e){
+            console.log('[model-loaded] read error for', ent, e);
+          }
+        });
+        ent.addEventListener('error', (e) => {
+          console.error('Model load error for', ent, e);
+        });
+      });
+    });
+
+    // -------------------------
+    // UI flows
+    // -------------------------
     function startGame(){
       document.getElementById('startScreen').style.display = 'none';
       document.getElementById('cakeChoices').style.display = 'flex';
@@ -143,6 +196,7 @@
       document.getElementById('cakeChoices').style.display = 'none';
       document.getElementById('scene').style.display = 'block';
       recipePanel.style.display = 'block';
+      recipePanel.className = cakeName;
 
       if (cakeName === 'blueberry') {
         currentIngredients = ["flour","sugar","butter","milk","vanilla","blueberry","strawberry","spatula","whisk"];
@@ -152,37 +206,150 @@
         currentIngredients = ["flour","sugar","butter","milk","vanilla","cherries","spatula","whisk"];
       }
 
+      // Render recipe list (IDs derived from ingredient names — spaces replaced with hyphens)
       recipePanel.innerHTML = `<h2>${cakeName.charAt(0).toUpperCase()+cakeName.slice(1)} Cake</h2>
         <ul>${currentIngredients.map(i => `<li id="recipe-${i.replace(/\s+/g,'-')}"><span class="check"></span> ${i}</li>`).join('')}</ul>`;
+
+      // Make all collectables visible and clickable
+      document.querySelectorAll('a-entity.collectable').forEach(el => {
+        el.setAttribute('visible', true);
+        // Ensure they are pickable (a simple raycast target)
+        el.setAttribute('class','collectable');
+      });
     }
 
-    // collectable component
+    // -------------------------
+    // A-Frame collectable component
+    // -------------------------
     AFRAME.registerComponent('collectable',{
       init: function(){
+        // allow pointer/click picking with mouse/touch
         this.el.addEventListener('click', () => {
           const rawName = this.el.getAttribute('data-name');
           if (!rawName) return;
-          const name = rawName.toLowerCase();
-          const found = currentIngredients.find(i => i.toLowerCase() === name);
+          // normalize
+          const name = rawName;
+          // If ingredient exists in currentIngredients
+          const found = currentIngredients.find(i => i.toLowerCase() === name.toLowerCase());
           if (found) {
+            // hide the entity (keeps it removed visually)
             this.el.setAttribute('visible', false);
+            // mark recipe item
             const li = document.getElementById(`recipe-${found.replace(/\s+/g,'-')}`);
             if (li) {
               li.querySelector('.check').textContent = '✅';
               li.classList.add('collected');
             }
+
+            // check done
+            const allCollected = currentIngredients.every(i => {
+              const li2 = document.getElementById(`recipe-${i.replace(/\s+/g,'-')}`);
+              return li2 && li2.classList.contains('collected');
+            });
+            if (allCollected) showLoadingBar();
+          } else {
+            // If not part of recipe, give small feedback (console)
+            console.log(`Clicked ${name} but it's not in current recipe`);
           }
         });
       }
     });
 
+    // -------------------------
+    // Loading bar & final cake spawn
+    // -------------------------
+    function showLoadingBar(){
+      loadingBarContainer.style.display = 'block';
+      loadingBar.style.width = '0%';
+      // animate
+      setTimeout(()=> loadingBar.style.width = '100%', 100);
+
+      // finalize after animation
+      setTimeout(()=> {
+        loadingBarContainer.style.display = 'none';
+        document.getElementById('quitButton').style.display = 'block';
+
+        // spawn final cake model near the player; choose model by cake type
+        let cakeModel = 'cake.glb';
+        if (currentCake === 'strawberry') cakeModel = 'strawberrycake.glb';
+        if (currentCake === 'blueberry') cakeModel = 'blueberrycake.glb';
+        if (currentCake === 'cherry') cakeModel = 'cherrycake.glb';
+
+        // spawn in front of camera: compute camera world position & forward
+        const cam = document.querySelector('#firstPersonCam');
+        if (cam && cam.object3D) {
+          const camObj = cam.object3D;
+          const forward = new THREE.Vector3();
+          camObj.getWorldDirection(forward);
+          const spawnPos = new THREE.Vector3();
+          camObj.getWorldPosition(spawnPos);
+          // place cake 2.5 units in front of camera and slightly down so it's visible
+          spawnPos.add(forward.multiplyScalar(2.5));
+          spawnPos.y = spawnPos.y - 1.5;
+
+          const cakeEnt = document.createElement('a-entity');
+          cakeEnt.setAttribute('gltf-model', cakeModel);
+          cakeEnt.setAttribute('position', `${spawnPos.x} ${spawnPos.y} ${spawnPos.z}`);
+          // Do not scale the cake — trust Blender export; but if it's tiny, user can change PLAYER_HEIGHT or export scale
+          cakeEnt.setAttribute('material', 'side:double');
+          document.querySelector('a-scene').appendChild(cakeEnt);
+        } else {
+          // fallback: spawn near world origin
+          const cakeEnt = document.createElement('a-entity');
+          cakeEnt.setAttribute('gltf-model', cakeModel);
+          cakeEnt.setAttribute('position', `0 1 -2`);
+          cakeEnt.setAttribute('material','side:double');
+          document.querySelector('a-scene').appendChild(cakeEnt);
+        }
+      }, 5200); // slightly longer than CSS transition (5s)
+    }
+
+    // -------------------------
+    // Quit / Reset
+    // -------------------------
     function quitGame(){
+      // hide scene and UI, return to start
       document.getElementById('scene').style.display = 'none';
       recipePanel.style.display = 'none';
       document.getElementById('quitButton').style.display = 'none';
       document.getElementById('startScreen').style.display = 'flex';
+
+      // remove any spawned cake(s)
+      document.querySelectorAll("a-entity[gltf-model]").forEach(ent => {
+        // keep original world objects; only remove spawned cake(s) by checking id or by checking if model name contains 'cake'
+        const modelAttr = ent.getAttribute('gltf-model') || '';
+        if (typeof modelAttr === 'string' && modelAttr.toLowerCase().includes('cake')) {
+          ent.remove();
+        }
+      });
+
+      // reset recipe checks (in case user restarts)
       currentIngredients = [];
     }
+
+    // -------------------------
+    // Toggle cameras (press C)
+    // -------------------------
+    window.addEventListener('keydown', (e) => {
+      if (e.key.toLowerCase() === 'c') {
+        const first = document.querySelector('#firstPersonCam');
+        const top = document.getElementById('topDownCam');
+        if (!first || !top) return;
+        const firstActive = first.getAttribute('camera')?.active;
+        if (firstActive) {
+          top.setAttribute('camera', 'active', true);
+          first.setAttribute('camera', 'active', false);
+        } else {
+          first.setAttribute('camera', 'active', true);
+          top.setAttribute('camera', 'active', false);
+        }
+      }
+    });
+
+    // -------------------------
+    // Helpful: show scene on start (when chooseCake is called)
+    // -------------------------
+    // Note: we deliberately DO NOT change or scale your Blender objects.
   </script>
 </body>
 </html>
