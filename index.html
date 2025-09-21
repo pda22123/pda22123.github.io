@@ -1,179 +1,146 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Bake your cake</title>
-    <meta name="description" content="Bake your cake">
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+<head>
+  <title>Bake your cake</title>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <style>
+    body, html { margin:0; padding:0; height:100%; width:100%; font-family:sans-serif; }
+    #startScreen, #cakeChoices { position:absolute; top:0; left:0; width:100%; height:100%;
+      display:flex; flex-direction:column; justify-content:center; align-items:center;
+      background-size:cover; background-position:center; background-repeat:no-repeat;
+      background-attachment:fixed; z-index:10; }
+    #startScreen { background-image: url('https://cdn.pixabay.com/photo/2015/01/14/19/20/bake-599521_1280.jpg'); }
+    #cakeChoices { background-image: url('https://cdn.pixabay.com/photo/2015/01/14/19/20/bake-599521_1280.jpg'); display:none; }
+    #startScreen::before, #cakeChoices::before { content:""; position:absolute; top:0; left:0;
+      width:100%; height:100%; background: rgba(0,0,0,0.5); z-index:-1; }
+    .cake-tab { padding:20px; border-radius:10px; color:white; font-size:20px; cursor:pointer;
+      text-align:center; width:180px; font-weight:bold; margin:10px; }
+    #chocolateTab{background-color:#8B4513;} 
+    #blueberryTab{background-color:#1E90FF;} 
+    #strawberryTab{background-color:#FF69B4;} 
+    #cherryTab{background-color:#c71585;}
+  </style>
+</head>
+<body>
+  <div id="startScreen">
+    <h1 style="color:white;">Bake your cake</h1>
+    <button onclick="startGame()">Start</button>
+  </div>
 
-    <style>
-      .start-ui {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 10;
-        text-align: center;
-      }
+  <div id="cakeChoices">
+    <div id="strawberryTab" class="cake-tab" onclick="chooseCake('strawberry')">Strawberry Cake</div>
+    <div id="blueberryTab" class="cake-tab" onclick="chooseCake('blueberry')">Blueberry Cake</div>
+    <div id="cherryTab" class="cake-tab" onclick="chooseCake('cherry')">Cherry Cake</div>
+  </div>
 
-      .start-ui button {
-        margin: 10px;
-        padding: 15px 30px;
-        font-size: 18px;
-        cursor: pointer;
-      }
+  <!-- === SCENE === -->
+  <a-scene id="scene" style="display:block;">
+    <!-- Camera fixed to eye level -->
+    <a-entity position="0 2 5">
+      <a-camera>
+        <a-cursor rayOrigin="mouse" fuse="false" material="color:black; shader:flat"></a-cursor>
+      </a-camera>
+    </a-entity>
 
-      /* Cake choice tabs */
-      #cakeChoices {
-        position: absolute;
-        top: 20%;
-        left: 50%;
-        transform: translateX(-50%);
-        display: none;
-        gap: 20px;
-        z-index: 10;
-      }
+    <!-- Lights -->
+    <a-entity light="type:ambient; intensity:1"></a-entity>
+    <a-entity light="type:directional; intensity:1.2" position="0 4 4"></a-entity>
 
-      #cakeChoices div {
-        padding: 20px;
-        border-radius: 10px;
-        color: white;
-        font-size: 20px;
-        cursor: pointer;
-        text-align: center;
-        width: 180px;
-      }
+    <!-- Test Kitchen objects -->
+    <a-entity id="floor" gltf-model="floor.glb" position="0 0 0" scale="0.1 0.1 0.1"></a-entity>
+    <a-entity id="fridge" gltf-model="fridge.glb" position="-2 0 -3" scale="0.1 0.1 0.1"></a-entity>
+    <a-entity id="stove" gltf-model="stove.glb" position="2 0 -3" scale="0.1 0.1 0.1"></a-entity>
 
-      #chocolateTab { background-color: #8B4513; }
-      #blueberryTab { background-color: #1E90FF; }
-      #cherryTab { background-color: #FF69B4; }
+    <!-- Test Collectables -->
+    <a-entity id="flour" gltf-model="flour.glb" position="0 1 -2" scale="0.2 0.2 0.2"></a-entity>
+    <a-entity id="sugar" gltf-model="sugar.glb" position="1 1 -2" scale="0.2 0.2 0.2"></a-entity>
+    <a-entity id="butter" gltf-model="butter.glb" position="-1 1 -2" scale="0.2 0.2 0.2"></a-entity>
 
-      /* Recipe panel */
-      #recipePanel ul {
-        list-style: none;
-        padding: 0;
-      }
+    <!-- Background wall for orientation -->
+    <a-plane color="#ccc" height="10" width="20" rotation="-90 0 0" position="0 0 -5"></a-plane>
+  </a-scene>
 
-      #recipePanel li {
-        margin: 5px 0;
-        color: red;
-      }
+  <script>
+    function startGame(){
+      document.getElementById('startScreen').style.display='none';
+      document.getElementById('cakeChoices').style.display='flex';
+    }
+    function chooseCake(cakeName){
+      alert("You picked " + cakeName + " (functionality coming later)");
+    }
+  </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bake your cake</title>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <style>
+    body, html { margin:0; padding:0; height:100%; width:100%; font-family:sans-serif; }
+    #startScreen, #cakeChoices { position:absolute; top:0; left:0; width:100%; height:100%;
+      display:flex; flex-direction:column; justify-content:center; align-items:center;
+      background-size:cover; background-position:center; background-repeat:no-repeat;
+      background-attachment:fixed; z-index:10; }
+    #startScreen { background-image: url('https://cdn.pixabay.com/photo/2015/01/14/19/20/bake-599521_1280.jpg'); }
+    #cakeChoices { background-image: url('https://cdn.pixabay.com/photo/2015/01/14/19/20/bake-599521_1280.jpg'); display:none; }
+    #startScreen::before, #cakeChoices::before { content:""; position:absolute; top:0; left:0;
+      width:100%; height:100%; background: rgba(0,0,0,0.5); z-index:-1; }
+    .cake-tab { padding:20px; border-radius:10px; color:white; font-size:20px; cursor:pointer;
+      text-align:center; width:180px; font-weight:bold; margin:10px; }
+    #chocolateTab{background-color:#8B4513;} 
+    #blueberryTab{background-color:#1E90FF;} 
+    #strawberryTab{background-color:#FF69B4;} 
+    #cherryTab{background-color:#c71585;}
+  </style>
+</head>
+<body>
+  <div id="startScreen">
+    <h1 style="color:white;">Bake your cake</h1>
+    <button onclick="startGame()">Start</button>
+  </div>
 
-      #recipePanel li.collected {
-        color: green;
-        font-weight: bold;
-      }
-    </style>
+  <div id="cakeChoices">
+    <div id="strawberryTab" class="cake-tab" onclick="chooseCake('strawberry')">Strawberry Cake</div>
+    <div id="blueberryTab" class="cake-tab" onclick="chooseCake('blueberry')">Blueberry Cake</div>
+    <div id="cherryTab" class="cake-tab" onclick="chooseCake('cherry')">Cherry Cake</div>
+  </div>
 
-    <script>
-      let selectedCake = null;
-      const recipes = {
-        blueberry: ["flour", "sugar", "butter", "milk", "vanilla", "blueberries", "spatula"],
-        chocolate: ["flour", "sugar", "butter", "milk", "vanilla", "chocolate", "strawberries", "spatula"],
-        cherry: ["flour", "sugar", "butter", "milk", "vanilla", "cherries", "spatula"]
-      };
+  <!-- === SCENE === -->
+  <a-scene id="scene" style="display:block;">
+    <!-- Camera fixed to eye level -->
+    <a-entity position="0 2 5">
+      <a-camera>
+        <a-cursor rayOrigin="mouse" fuse="false" material="color:black; shader:flat"></a-cursor>
+      </a-camera>
+    </a-entity>
 
-      function startGame() {
-        document.getElementById('startScreen').style.display = 'none';
-        document.getElementById('cakeChoices').style.display = 'flex';
-      }
+    <!-- Lights -->
+    <a-entity light="type:ambient; intensity:1"></a-entity>
+    <a-entity light="type:directional; intensity:1.2" position="0 4 4"></a-entity>
 
-      function chooseCake(cakeType) {
-        selectedCake = cakeType;
+    <!-- Test Kitchen objects -->
+    <a-entity id="floor" gltf-model="floor.glb" position="0 0 0" scale="0.1 0.1 0.1"></a-entity>
+    <a-entity id="fridge" gltf-model="fridge.glb" position="-2 0 -3" scale="0.1 0.1 0.1"></a-entity>
+    <a-entity id="stove" gltf-model="stove.glb" position="2 0 -3" scale="0.1 0.1 0.1"></a-entity>
 
-        document.getElementById('cakeChoices').style.display = 'none';
-        document.getElementById('scene').style.display = 'block';
+    <!-- Test Collectables -->
+    <a-entity id="flour" gltf-model="flour.glb" position="0 1 -2" scale="0.2 0.2 0.2"></a-entity>
+    <a-entity id="sugar" gltf-model="sugar.glb" position="1 1 -2" scale="0.2 0.2 0.2"></a-entity>
+    <a-entity id="butter" gltf-model="butter.glb" position="-1 1 -2" scale="0.2 0.2 0.2"></a-entity>
 
-        // Show recipe panel
-        const recipePanel = document.getElementById('recipePanel');
-        recipePanel.style.display = 'block';
-        recipePanel.innerHTML = `
-          <h2>${cakeType.charAt(0).toUpperCase() + cakeType.slice(1)} Cake</h2>
-          <ul>
-            ${recipes[cakeType].map(item => `<li id="recipe-${item.toLowerCase()}">${item}</li>`).join("")}
-          </ul>
-        `;
+    <!-- Background wall for orientation -->
+    <a-plane color="#ccc" height="10" width="20" rotation="-90 0 0" position="0 0 -5"></a-plane>
+  </a-scene>
 
-        // Show all kitchen objects
-        const entityIds = [
-          'kitchenrightwall','blueberries','plate','strawberry','blackcabinet','blackplate','bluebottle','bowl','clock',
-          'coffee','coffeemaker','counterfloorright','cuttingboard','exhaustfan','faucet','floor','kitchenopenwall',
-          'kitchenroofslide','kitchenrooftop','kitchenwallback','kniveholder','ladlesandspoonswall','light','mugs',
-          'pandeep','plant','plantwindow','salt1','salt2','salt3','shelves','sink','slicefruitcake','soap','soap2',
-          'spatula','stool','stove','stovecabinets','sugarbag','vanilla','wallclock','wallcountertop','wallstove',
-          'whitebottle','windowbottom'
-        ];
-        entityIds.forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.setAttribute('visible', true);
-        });
-
-        // Restart music
-        const music = document.querySelector('#mainmusic');
-        if (music && music.components && music.components.sound) {
-          music.components.sound.stopSound();
-          music.components.sound.playSound();
-        }
-
-        // Add click for collectable ingredients
-        document.querySelectorAll('.ingredient').forEach(el => {
-          el.addEventListener('click', () => collectIngredient(el.id));
-        });
-      }
-
-      function collectIngredient(id) {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.setAttribute('visible', false);
-
-        const recipeItem = document.getElementById(`recipe-${id.toLowerCase()}`);
-        if (recipeItem) {
-          recipeItem.classList.add('collected');
-          recipeItem.innerHTML = `✅ ${recipeItem.innerText}`;
-        }
-      }
-    </script>
-  </head>
-
-  <body>
-    <!-- Start Screen -->
-    <div class="start-ui" id="startScreen">
-      <h1>Bake your cake</h1>
-      <button onclick="startGame()">Start</button>
-      <button onclick="window.close()">Quit</button>
-    </div>
-
-    <!-- Cake choice tabs -->
-    <div id="cakeChoices">
-      <div id="chocolateTab" onclick="chooseCake('chocolate')">Chocolate Cake</div>
-      <div id="blueberryTab" onclick="chooseCake('blueberry')">Blueberry Cake</div>
-      <div id="cherryTab" onclick="chooseCake('cherry')">Cherry Cake</div>
-    </div>
-
-    <!-- Recipe panel -->
-    <div id="recipePanel" style="display:none;"></div>
-
-    <!-- Scene -->
-    <a-scene id="scene" vr-mode-ui="enabled: false" style="display:none;">
-      <!-- Camera: centered in kitchen, human height -->
-      <a-entity id="cameraRig" position="0 0 0">
-        <a-camera position="0 1.6 3"> <!-- X=0 center, Y=1.6 height, Z=3 back -->
-          <a-cursor rayOrigin="mouse" material="color: black; shader: flat"></a-cursor>
-        </a-camera>
-      </a-entity>
-
-      <!-- Lights -->
-      <a-entity light="type: ambient; intensity: 0.5"></a-entity>
-      <a-entity light="type: directional; intensity: 0.8" position="0 2 1"></a-entity>
-
-      <!-- Example kitchen entities -->
-      <a-entity id="kitchenrightwall" gltf-model="kitchenrightwall.glb" visible="false"></a-entity>
-      <a-entity id="blueberries" class="ingredient" gltf-model="blueberries.glb" visible="false"></a-entity>
-      <a-entity id="plate" gltf-model="plate.glb" visible="false"></a-entity>
-      <a-entity id="strawberry" class="ingredient" gltf-model="strawberry.glb" visible="false"></a-entity>
-      <!-- (rest of your kitchen models go here) -->
-
-      <!-- Music -->
-      <a-sound id="mainmusic" src="baking cooking jazz.mp3" autoplay="false" loop="true"></a-sound>
-    </a-scene>
-  </body>
+  <script>
+    function startGame(){
+      document.getElementById('startScreen').style.display='none';
+      document.getElementById('cakeChoices').style.display='flex';
+    }
+    function chooseCake(cakeName){
+      alert("You picked " + cakeName + " (functionality coming later)");
+    }
+  </script>
+</body>
 </html>
