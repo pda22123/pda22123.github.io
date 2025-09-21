@@ -2,8 +2,11 @@
 <html>
 <head>
   <title>Bake your cake</title>
+  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <script src="https://cdn.rawgit.com/donmccurdy/aframe-physics-system/v3.3.0/dist/aframe-physics-system.min.js"></script>
+  <!-- Physics system -->
+  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-physics-system@v3.3.0/dist/aframe-physics-system.min.js"></script>
+  
   <style>
     body, html { margin:0; padding:0; height:100%; width:100%; font-family:sans-serif; }
 
@@ -58,6 +61,7 @@
       cursor:pointer; display:none; z-index:30;
     }
   </style>
+  
   <script>
     let currentIngredients = [];
     let currentCake = "";
@@ -87,11 +91,10 @@
       recipePanel.innerHTML=`<h2>${cakeName.charAt(0).toUpperCase()+cakeName.slice(1)} Cake</h2>
         <ul>${currentIngredients.map(i=>`<li id="recipe-${i}"><span class="check"></span> ${i}</li>`).join('')}</ul>`;
 
-      document.querySelectorAll('a-entity').forEach(el=>{
+      // Show all collectables
+      document.querySelectorAll('a-entity.collectable').forEach(el=>{
         el.setAttribute('visible', true);
-        if(el.classList.contains('collectable')){
-          el.setAttribute('scale','2 2 2'); 
-        }
+        el.setAttribute('scale','2 2 2'); 
       });
     }
 
@@ -130,7 +133,7 @@
         if(currentCake === "cherry"){ cakeModel = "cherrycake.glb"; }
 
         const cake=document.createElement('a-entity');
-        cake.setAttribute('gltf-model', cakeModel);
+        cake.setAttribute('gltf-model', `./${cakeModel}`);
         cake.setAttribute('position','0 1 -2');
         document.querySelector('a-scene').appendChild(cake);
       },5000);
@@ -141,6 +144,7 @@
       document.getElementById('recipePanel').style.display='none';
       document.getElementById('quitButton').style.display='none';
       document.getElementById('startScreen').style.display='flex';
+      // Remove cake models
       document.querySelectorAll("a-entity[gltf-model$='.glb']").forEach(el=>{
         if(el.getAttribute("gltf-model").includes("cake")) el.remove();
       });
@@ -164,22 +168,25 @@
   </script>
 </head>
 <body>
+  <!-- START SCREEN -->
   <div id="startScreen">
     <h1 style="color:white;">Bake your cake</h1>
     <button onclick="startGame()">Start</button>
   </div>
 
+  <!-- CAKE CHOICES -->
   <div id="cakeChoices">
     <div id="strawberryTab" class="cake-tab" onclick="chooseCake('strawberry')">Strawberry Cake</div>
     <div id="blueberryTab" class="cake-tab" onclick="chooseCake('blueberry')">Blueberry Cake</div>
     <div id="cherryTab" class="cake-tab" onclick="chooseCake('cherry')">Cherry Cake</div>
   </div>
 
+  <!-- RECIPE PANEL -->
   <div id="recipePanel"></div>
   <div id="loadingBarContainer"><div id="loadingBar"></div></div>
   <button id="quitButton" onclick="quitGame()">Quit</button>
 
-  <!-- === SCENE === -->
+  <!-- 3D SCENE -->
   <a-scene id="scene" style="display:none;" physics="gravity: -9.8;">
     <!-- First-person rig -->
     <a-entity id="rig" position="0 3 10" movement-controls="speed: 0.6">
@@ -188,25 +195,26 @@
       </a-camera>
     </a-entity>
 
-    <!-- Top-down debug camera (press "C" to toggle) -->
+    <!-- Top-down debug camera -->
     <a-entity id="topDownCam" position="0 20 20" rotation="-45 0 0" camera="active: false"></a-entity>
 
     <!-- Lights -->
     <a-entity light="type:ambient; intensity:0.5"></a-entity>
     <a-entity light="type:directional; intensity:0.8" position="0 5 5"></a-entity>
 
-    <!-- Kitchen (with material fix) -->
-    <a-entity id="fridge" gltf-model="fridge.glb" static-body material="side: double; opacity: 1; transparent: false"></a-entity>
-    <a-entity id="floor" gltf-model="floor.glb" static-body material="side: double; opacity: 1; transparent: false"></a-entity>
-    <!-- ...repeat material fix for any other see-through objects... -->
+    <!-- Kitchen -->
+    <a-entity id="fridge" gltf-model="./fridge.glb" static-body></a-entity>
+    <a-entity id="floor" gltf-model="./floor.glb" static-body></a-entity>
 
-    <!-- Collectables (unchanged, still clickable) -->
-    <a-entity id="flour" gltf-model="flour.glb" class="collectable" collectable data-name="flour" position="4 2 0.5">
-      <a-box visible="false" scale="5 5 5"></a-box>
-    </a-entity>
-    <!-- repeat for all your collectables... -->
+    <!-- Collectables -->
+    <a-entity id="flour" gltf-model="./flour.glb" class="collectable" collectable data-name="flour" position="4 2 0.5"></a-entity>
+    <a-entity id="sugar" gltf-model="./sugar.glb" class="collectable" collectable data-name="sugar" position="3 2 1"></a-entity>
+    <a-entity id="butter" gltf-model="./butter.glb" class="collectable" collectable data-name="butter" position="2 2 1.5"></a-entity>
+    <a-entity id="milk" gltf-model="./milk.glb" class="collectable" collectable data-name="milk" position="1 2 2"></a-entity>
+    <!-- Add more collectables as needed -->
 
-    <a-sound id="mainmusic" src="baking cooking jazz.mp3" autoplay="false" loop="true"></a-sound>
+    <!-- Music -->
+    <a-sound id="mainmusic" src="./baking cooking jazz.mp3" autoplay="false" loop="true"></a-sound>
   </a-scene>
 </body>
 </html>
