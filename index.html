@@ -6,12 +6,12 @@
   <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-physics-system@v3.3.0/dist/aframe-physics-system.min.js"></script>
   <style>
     body, html { margin:0; padding:0; height:100%; width:100%; font-family:sans-serif; }
-    
+
+    /* Start screen & cake choices */
     #startScreen, #cakeChoices { 
       position:absolute; top:0; left:0; width:100%; height:100%; 
       display:flex; flex-direction:column; justify-content:center; align-items:center; 
-      background-size:cover; background-position:center; background-repeat:no-repeat;
-      z-index:100; 
+      background-size:cover; background-position:center; z-index:100; 
     }
     #startScreen { 
       background-image: url('https://cdn.pixabay.com/photo/2015/01/14/19/20/bake-599521_1280.jpg');
@@ -25,11 +25,11 @@
       background: rgba(0,0,0,0.5); z-index:-1; 
     }
     .cake-tab { padding:20px; border-radius:10px; color:white; font-size:20px; cursor:pointer; text-align:center; width:180px; font-weight:bold; margin:10px; }
-    #chocolateTab{background-color:#8B4513;} 
-    #blueberryTab{background-color:#1E90FF;} 
     #strawberryTab{background-color:#FF69B4;} 
+    #blueberryTab{background-color:#1E90FF;} 
     #cherryTab{background-color:#c71585;}
 
+    /* Recipe panel overlay */
     #recipePanel {
       position: fixed; top:20%; left:5%; z-index:200; min-width:200px; padding:20px; 
       border-radius:12px; font-size:18px; color:white; display:none; pointer-events:auto;
@@ -42,6 +42,7 @@
     #recipePanel.blueberry { background-color:#1E90FF; }
     #recipePanel.cherry { background-color:#c71585; }
 
+    /* Loading bar */
     #loadingBarContainer {
       position: fixed; bottom:20px; left:50%; transform:translateX(-50%);
       width:60%; height:25px; background:#ddd; border-radius:15px;
@@ -49,6 +50,7 @@
     }
     #loadingBar { width:0%; height:100%; background:#FF69B4; transition:width 5s linear; }
 
+    /* Quit button */
     #quitButton {
       position: fixed; top:20px; right:20px; padding:12px 20px; border:none; border-radius:8px;
       background:#ff69b4; color:white; font-size:18px; font-weight:bold;
@@ -57,47 +59,52 @@
   </style>
 </head>
 <body>
+  <!-- Start Screen -->
   <div id="startScreen">
     <h1 style="color:white;">Bake your cake</h1>
     <button onclick="startGame()">Start</button>
   </div>
 
+  <!-- Cake Selection -->
   <div id="cakeChoices">
     <div id="strawberryTab" class="cake-tab" onclick="chooseCake('strawberry')">Strawberry Cake</div>
     <div id="blueberryTab" class="cake-tab" onclick="chooseCake('blueberry')">Blueberry Cake</div>
     <div id="cherryTab" class="cake-tab" onclick="chooseCake('cherry')">Cherry Cake</div>
   </div>
 
+  <!-- Recipe Panel -->
   <div id="recipePanel"></div>
   <div id="loadingBarContainer"><div id="loadingBar"></div></div>
   <button id="quitButton" onclick="quitGame()">Quit</button>
 
+  <!-- A-Frame Scene -->
   <a-scene id="scene" style="display:none;" physics="gravity: -9.8;">
-    <!-- Player rig -->
+    
+    <!-- Player Rig -->
     <a-entity id="rig" position="0 1.6 5" movement-controls="speed: 1">
-      <a-camera id="firstPersonCam" look-controls="pointerLockEnabled: true" camera="active: true">
+      <a-camera id="firstPersonCam" look-controls camera="active:true">
         <a-cursor rayOrigin="mouse" fuse="false" material="color:black; shader:flat"></a-cursor>
       </a-camera>
     </a-entity>
 
-    <!-- Top-down debug camera -->
-    <a-entity id="topDownCam" position="0 20 20" rotation="-45 0 0" camera="active: false"></a-entity>
+    <!-- Top-down Camera -->
+    <a-entity id="topDownCam" position="0 20 20" rotation="-45 0 0" camera="active:false"></a-entity>
 
     <!-- Lights -->
     <a-entity light="type:ambient; intensity:0.5"></a-entity>
     <a-entity light="type:directional; intensity:0.8" position="0 5 5"></a-entity>
 
     <!-- Floor -->
-    <a-entity id="floor" gltf-model="floor.glb" static-body position="0 0 0" scale="2 2 2"></a-entity>
+    <a-entity gltf-model="floor.glb" static-body scale="2 2 2" position="0 0 0" material="side:double"></a-entity>
 
-    <!-- Kitchen objects -->
-    <a-entity id="fridge" gltf-model="fridge.glb" static-body position="2 0 0" scale="2 2 2"></a-entity>
-    <a-entity id="counter" gltf-model="counter.glb" static-body position="-2 0 0" scale="2 2 2"></a-entity>
+    <!-- Kitchen Objects -->
+    <a-entity gltf-model="fridge.glb" static-body position="2 0.5 -1" scale="2 2 2" material="side:double"></a-entity>
+    <a-entity gltf-model="counter.glb" static-body position="-2 0.5 -1" scale="2 2 2" material="side:double"></a-entity>
 
     <!-- Collectables -->
-    <a-entity id="flour" gltf-model="flour.glb" class="collectable" collectable data-name="flour" position="1 0.5 -1" scale="0.5 0.5 0.5"></a-entity>
-    <a-entity id="sugar" gltf-model="sugar.glb" class="collectable" collectable data-name="sugar" position="-1 0.5 -1" scale="0.5 0.5 0.5"></a-entity>
-    <a-entity id="butter" gltf-model="butter.glb" class="collectable" collectable data-name="butter" position="0 0.5 -2" scale="0.5 0.5 0.5"></a-entity>
+    <a-entity id="flour" gltf-model="flour.glb" class="collectable" collectable data-name="flour" position="1 0.5 -2" scale="0.5 0.5 0.5" material="side:double"></a-entity>
+    <a-entity id="sugar" gltf-model="sugar.glb" class="collectable" collectable data-name="sugar" position="-1 0.5 -2" scale="0.5 0.5 0.5" material="side:double"></a-entity>
+    <a-entity id="butter" gltf-model="butter.glb" class="collectable" collectable data-name="butter" position="0 0.5 -3" scale="0.5 0.5 0.5" material="side:double"></a-entity>
   </a-scene>
 
   <script>
@@ -131,7 +138,6 @@
 
       document.querySelectorAll('a-entity.collectable').forEach(el=>{
         el.setAttribute('visible', true);
-        el.setAttribute('scale','0.5 0.5 0.5');
       });
     }
 
@@ -173,6 +179,7 @@
         cake.setAttribute('gltf-model', cakeModel);
         cake.setAttribute('position','0 1 -2');
         cake.setAttribute('scale','2 2 2');
+        cake.setAttribute('material','side:double');
         document.querySelector('a-scene').appendChild(cake);
       },5000);
     }
@@ -185,6 +192,7 @@
       document.querySelectorAll("a-entity[gltf-model]").forEach(el=>{ el.remove(); });
     }
 
+    // Camera toggle
     window.addEventListener("keydown", e=>{
       if(e.key==="c"){ 
         document.querySelectorAll("a-camera").forEach(cam=>{
