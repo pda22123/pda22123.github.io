@@ -47,6 +47,7 @@
       padding:10px 16px; border-radius:8px; background:#ff5678; color:#fff; border:none; font-weight:700; cursor:pointer;
     }
 
+    /* Small helper text */
     #debugHint { position:fixed; left:12px; bottom:12px; z-index:9998; color:#fff; font-size:13px; opacity:0.8; }
   </style>
 </head>
@@ -74,8 +75,8 @@
 
   <!-- A-Frame Scene -->
   <a-scene id="scene" physics="gravity: -9.8;" style="display:none;">
-    <!-- Player rig with collider -->
-    <a-entity id="rig" position="0 1.6 7" movement-controls="speed:6" kinematic-body>
+    <!-- Player rig: kept exactly as your code -->
+    <a-entity id="rig" position="0 20 8" movement-controls="speed:6" kinematic-body>
       <a-camera id="firstPersonCam" look-controls camera="active:true" cursor="rayOrigin:mouse">
         <a-cursor fuse="false" material="color:black; shader:flat"></a-cursor>
       </a-camera>
@@ -112,7 +113,7 @@
     <a-entity id="e_exhaustfan" gltf-model="exhaustfan.glb" static-body></a-entity>
     <a-entity id="e_cuttingboard" gltf-model="cuttingboard.glb" static-body></a-entity>
 
-    <!-- Collectables (clickable) with colliders -->
+    <!-- Collectables -->
     <a-entity id="flour" gltf-model="flour.glb" class="collectable" collectable data-name="flour" static-body></a-entity>
     <a-entity id="sugar" gltf-model="sugar.glb" class="collectable" collectable data-name="sugar" static-body></a-entity>
     <a-entity id="butter" gltf-model="butter.glb" class="collectable" collectable data-name="butter" static-body></a-entity>
@@ -127,8 +128,6 @@
     let currentIngredients = [];
     let currentCake = "";
     const recipePanel = document.getElementById('recipePanel');
-    const loadingBarContainer = document.getElementById('loadingBarContainer');
-    const loadingBar = document.getElementById('loadingBar');
 
     function startGame(){
       document.getElementById('startScreen').style.display = 'none';
@@ -157,7 +156,7 @@
         <ul>${currentIngredients.map(i => `<li id="recipe-${i.replace(/\s+/g,'-')}"><span class="check"></span> ${i}</li>`).join('')}</ul>`;
     }
 
-    // collectable component: mark as collected on click
+    // collectable component
     AFRAME.registerComponent('collectable',{
       init: function(){
         this.el.addEventListener('click', () => {
