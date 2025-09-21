@@ -2,19 +2,16 @@
 <html>
 <head>
   <title>Bake your cake</title>
-  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <!-- Physics system -->
   <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-physics-system@v3.3.0/dist/aframe-physics-system.min.js"></script>
-  
   <style>
     body, html { margin:0; padding:0; height:100%; width:100%; font-family:sans-serif; }
+    
     #startScreen, #cakeChoices { 
       position:absolute; top:0; left:0; width:100%; height:100%; 
       display:flex; flex-direction:column; justify-content:center; align-items:center; 
       background-size:cover; background-position:center; background-repeat:no-repeat;
-      background-attachment:fixed;
-      z-index:10; 
+      z-index:100; 
     }
     #startScreen { 
       background-image: url('https://cdn.pixabay.com/photo/2015/01/14/19/20/bake-599521_1280.jpg');
@@ -32,7 +29,11 @@
     #blueberryTab{background-color:#1E90FF;} 
     #strawberryTab{background-color:#FF69B4;} 
     #cherryTab{background-color:#c71585;}
-    #recipePanel { position:absolute; top:20%; left:5%; padding:20px; border-radius:12px; font-size:18px; display:none; z-index:10; min-width:200px; color:white; }
+
+    #recipePanel {
+      position: fixed; top:20%; left:5%; z-index:200; min-width:200px; padding:20px; 
+      border-radius:12px; font-size:18px; color:white; display:none; pointer-events:auto;
+    }
     #recipePanel h2 { margin-top:0; font-size:22px; text-align:center; }
     #recipePanel ul { list-style:none; padding:0; }
     #recipePanel li { margin:5px 0; font-weight:bold; }
@@ -40,27 +41,70 @@
     #recipePanel.strawberry { background-color:#FF69B4; }
     #recipePanel.blueberry { background-color:#1E90FF; }
     #recipePanel.cherry { background-color:#c71585; }
+
     #loadingBarContainer {
-      position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+      position: fixed; bottom:20px; left:50%; transform:translateX(-50%);
       width:60%; height:25px; background:#ddd; border-radius:15px;
-      overflow:hidden; display:none; z-index:20;
+      overflow:hidden; display:none; z-index:300;
     }
-    #loadingBar {
-      width:0%; height:100%; background:#FF69B4; transition:width 5s linear;
-    }
+    #loadingBar { width:0%; height:100%; background:#FF69B4; transition:width 5s linear; }
+
     #quitButton {
-      position:absolute; top:20px; right:20px;
-      padding:12px 20px; border:none; border-radius:8px;
+      position: fixed; top:20px; right:20px; padding:12px 20px; border:none; border-radius:8px;
       background:#ff69b4; color:white; font-size:18px; font-weight:bold;
-      cursor:pointer; display:none; z-index:30;
+      cursor:pointer; display:none; z-index:400;
     }
   </style>
-  
+</head>
+<body>
+  <div id="startScreen">
+    <h1 style="color:white;">Bake your cake</h1>
+    <button onclick="startGame()">Start</button>
+  </div>
+
+  <div id="cakeChoices">
+    <div id="strawberryTab" class="cake-tab" onclick="chooseCake('strawberry')">Strawberry Cake</div>
+    <div id="blueberryTab" class="cake-tab" onclick="chooseCake('blueberry')">Blueberry Cake</div>
+    <div id="cherryTab" class="cake-tab" onclick="chooseCake('cherry')">Cherry Cake</div>
+  </div>
+
+  <div id="recipePanel"></div>
+  <div id="loadingBarContainer"><div id="loadingBar"></div></div>
+  <button id="quitButton" onclick="quitGame()">Quit</button>
+
+  <a-scene id="scene" style="display:none;" physics="gravity: -9.8;">
+    <!-- Player rig -->
+    <a-entity id="rig" position="0 1.6 5" movement-controls="speed: 1">
+      <a-camera id="firstPersonCam" look-controls="pointerLockEnabled: true" camera="active: true">
+        <a-cursor rayOrigin="mouse" fuse="false" material="color:black; shader:flat"></a-cursor>
+      </a-camera>
+    </a-entity>
+
+    <!-- Top-down debug camera -->
+    <a-entity id="topDownCam" position="0 20 20" rotation="-45 0 0" camera="active: false"></a-entity>
+
+    <!-- Lights -->
+    <a-entity light="type:ambient; intensity:0.5"></a-entity>
+    <a-entity light="type:directional; intensity:0.8" position="0 5 5"></a-entity>
+
+    <!-- Floor -->
+    <a-entity id="floor" gltf-model="floor.glb" static-body position="0 0 0" scale="2 2 2"></a-entity>
+
+    <!-- Kitchen objects -->
+    <a-entity id="fridge" gltf-model="fridge.glb" static-body position="2 0 0" scale="2 2 2"></a-entity>
+    <a-entity id="counter" gltf-model="counter.glb" static-body position="-2 0 0" scale="2 2 2"></a-entity>
+
+    <!-- Collectables -->
+    <a-entity id="flour" gltf-model="flour.glb" class="collectable" collectable data-name="flour" position="1 0.5 -1" scale="0.5 0.5 0.5"></a-entity>
+    <a-entity id="sugar" gltf-model="sugar.glb" class="collectable" collectable data-name="sugar" position="-1 0.5 -1" scale="0.5 0.5 0.5"></a-entity>
+    <a-entity id="butter" gltf-model="butter.glb" class="collectable" collectable data-name="butter" position="0 0.5 -2" scale="0.5 0.5 0.5"></a-entity>
+  </a-scene>
+
   <script>
     let currentIngredients = [];
     let currentCake = "";
 
-    function startGame(){
+    function startGame() {
       document.getElementById('startScreen').style.display='none';
       document.getElementById('cakeChoices').style.display='flex';
     }
@@ -85,10 +129,9 @@
       recipePanel.innerHTML=`<h2>${cakeName.charAt(0).toUpperCase()+cakeName.slice(1)} Cake</h2>
         <ul>${currentIngredients.map(i=>`<li id="recipe-${i}"><span class="check"></span> ${i}</li>`).join('')}</ul>`;
 
-      // Show all collectables
       document.querySelectorAll('a-entity.collectable').forEach(el=>{
         el.setAttribute('visible', true);
-        el.setAttribute('scale','2 2 2'); 
+        el.setAttribute('scale','0.5 0.5 0.5');
       });
     }
 
@@ -121,12 +164,10 @@
       setTimeout(()=>{
         barContainer.style.display='none';
         document.getElementById('quitButton').style.display='block';
-
-        // Use public cake models
-        let cakeModel = "https://cdn.aframe.io/test-models/models/Cake/scene.gltf";
-        if(currentCake === "strawberry"){ cakeModel = "https://cdn.aframe.io/test-models/models/CornellBox/scene.gltf"; }
-        if(currentCake === "blueberry"){ cakeModel = "https://cdn.aframe.io/test-models/models/Avocado/scene.gltf"; }
-        if(currentCake === "cherry"){ cakeModel = "https://cdn.aframe.io/test-models/models/Box/scene.gltf"; }
+        let cakeModel = "cake.glb";
+        if(currentCake === "strawberry"){ cakeModel = "strawberrycake.glb"; }
+        if(currentCake === "blueberry"){ cakeModel = "blueberrycake.glb"; }
+        if(currentCake === "cherry"){ cakeModel = "cherrycake.glb"; }
 
         const cake=document.createElement('a-entity');
         cake.setAttribute('gltf-model', cakeModel);
@@ -144,7 +185,6 @@
       document.querySelectorAll("a-entity[gltf-model]").forEach(el=>{ el.remove(); });
     }
 
-    // Camera switching
     window.addEventListener("keydown", e=>{
       if(e.key==="c"){ 
         document.querySelectorAll("a-camera").forEach(cam=>{
@@ -160,48 +200,5 @@
       }
     });
   </script>
-</head>
-<body>
-  <div id="startScreen">
-    <h1 style="color:white;">Bake your cake</h1>
-    <button onclick="startGame()">Start</button>
-  </div>
-
-  <div id="cakeChoices">
-    <div id="strawberryTab" class="cake-tab" onclick="chooseCake('strawberry')">Strawberry Cake</div>
-    <div id="blueberryTab" class="cake-tab" onclick="chooseCake('blueberry')">Blueberry Cake</div>
-    <div id="cherryTab" class="cake-tab" onclick="chooseCake('cherry')">Cherry Cake</div>
-  </div>
-
-  <div id="recipePanel"></div>
-  <div id="loadingBarContainer"><div id="loadingBar"></div></div>
-  <button id="quitButton" onclick="quitGame()">Quit</button>
-
-  <a-scene id="scene" style="display:none;" physics="gravity: -9.8;">
-    <!-- First-person rig -->
-    <a-entity id="rig" position="0 3 10" movement-controls="speed: 0.6">
-      <a-camera id="firstPersonCam" look-controls="pointerLockEnabled: true" camera="active: true">
-        <a-cursor rayOrigin="mouse" fuse="false" material="color:black; shader:flat"></a-cursor>
-      </a-camera>
-    </a-entity>
-
-    <!-- Top-down camera -->
-    <a-entity id="topDownCam" position="0 20 20" rotation="-45 0 0" camera="active: false"></a-entity>
-
-    <!-- Lights -->
-    <a-entity light="type:ambient; intensity:0.5"></a-entity>
-    <a-entity light="type:directional; intensity:0.8" position="0 5 5"></a-entity>
-
-    <!-- Kitchen floor -->
-    <a-entity gltf-model="https://cdn.aframe.io/test-models/models/Floor/scene.gltf" scale="2 2 2" static-body position="0 0 0"></a-entity>
-
-    <!-- Collectables -->
-    <a-entity gltf-model="https://cdn.aframe.io/test-models/models/Avocado/scene.gltf" class="collectable" collectable data-name="flour" position="2 0.5 -2" scale="0.5 0.5 0.5"></a-entity>
-    <a-entity gltf-model="https://cdn.aframe.io/test-models/models/Box/scene.gltf" class="collectable" collectable data-name="sugar" position="-2 0.5 -2" scale="0.5 0.5 0.5"></a-entity>
-    <a-entity gltf-model="https://cdn.aframe.io/test-models/models/CornellBox/scene.gltf" class="collectable" collectable data-name="butter" position="0 0.5 -3" scale="0.5 0.5 0.5"></a-entity>
-
-    <!-- Music (optional, must be public URL) -->
-    <!--<a-sound id="mainmusic" src="URL_TO_MP3" autoplay="false" loop="true"></a-sound>-->
-  </a-scene>
 </body>
 </html>
