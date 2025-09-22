@@ -1,277 +1,166 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
   <title>Bake your cake</title>
-
-  <!-- A-Frame + physics -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-physics-system@v3.3.0/dist/aframe-physics-system.min.js"></script>
-
+  <script src="https://cdn.rawgit.com/donmccurdy/aframe-physics-system/v3.3.0/dist/aframe-physics-system.min.js"></script>
   <style>
-    body, html { margin:0; padding:0; height:100%; width:100%; font-family:sans-serif; background:#000; }
-
-    #startScreen, #cakeChoices {
-      position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; align-items:center;
-      background-size:cover; background-position:center; z-index:100;
-    }
-    #startScreen { background-image: url('https://cdn.pixabay.com/photo/2015/01/14/19/20/bake-599521_1280.jpg'); }
-    #cakeChoices { background-image: url('https://cdn.pixabay.com/photo/2015/01/14/19/20/bake-599521_1280.jpg'); display:none; }
-    #startScreen::before, #cakeChoices::before { content:""; position:absolute; inset:0; background:rgba(0,0,0,0.5); z-index:-1; }
-
-    .cake-tab { padding:18px 22px; border-radius:10px; color:white; font-size:18px; cursor:pointer; text-align:center; width:200px; font-weight:700; margin:10px; }
-    #strawberryTab{background:#FF69B4;}
-    #blueberryTab{background:#1E90FF;}
-    #cherryTab{background:#c71585;}
-
-    #recipePanel {
-      position:fixed; top:18%; left:3%; z-index:9999; min-width:220px; padding:18px; border-radius:10px;
-      font-size:16px; color:#fff; display:none; pointer-events:auto; box-shadow:0 6px 20px rgba(0,0,0,0.6);
-      background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(0,0,0,0.4));
-    }
-    #recipePanel h2 { margin:0 0 8px; font-size:20px; text-align:center; }
-    #recipePanel ul { list-style:none; padding:0; margin:0; max-height:60vh; overflow:auto; }
-    #recipePanel li { margin:6px 0; font-weight:700; }
-    #recipePanel li.collected { color: #9be6a1; text-decoration:line-through; }
-
-    #loadingBarContainer {
-      position: fixed; bottom:22px; left:50%; transform:translateX(-50%); width:60%; height:26px;
-      background:#ddd; border-radius:20px; overflow:hidden; display:none; z-index:9999;
-    }
-    #loadingBar { width:0%; height:100%; background:#ff69b4; transition:width 5s linear; }
-
-    #quitButton {
-      position:fixed; right:18px; top:18px; z-index:9999; display:none;
-      padding:10px 16px; border-radius:8px; background:#ff5678; color:#fff; border:none; font-weight:700; cursor:pointer;
-    }
-
-    #debugHint { position:fixed; left:12px; bottom:12px; z-index:9998; color:#fff; font-size:13px; opacity:0.8; }
-
-    #congratsMessage {
-      display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%);
-      color:#fff; font-size:32px; font-weight:bold; background:rgba(255,105,180,0.9); padding:20px 30px; border-radius:12px;
-      z-index:99999; text-align:center; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-    }
+    body, html { margin:0; padding:0; height:100%; width:100%; font-family:sans-serif; }
+    #startScreen, #cakeChoices { position:absolute; top:0; left:0; width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; background-size:cover; z-index:10; }
+    #startScreen { background: url('https://cdn.pixabay.com/photo/2015/01/14/19/20/bake-599521_1280.jpg') no-repeat center center; }
+    #startScreen::before, #cakeChoices::before { content:""; position:absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index:-1; }
+    #cakeChoices { background: url('https://cdn.pixabay.com/photo/2015/01/14/19/20/bake-599521_1280.jpg') no-repeat center center; display:none; }
+    .cake-tab { padding:20px; border-radius:10px; color:white; font-size:20px; cursor:pointer; text-align:center; width:180px; font-weight:bold; margin:10px; }
+    #chocolateTab{background-color:#8B4513;} #blueberryTab{background-color:#1E90FF;} #cherryTab{background-color:#FF69B4;}
+    #recipePanel { position:absolute; top:20%; left:5%; padding:20px; border-radius:12px; font-size:18px; display:none; z-index:10; min-width:200px; color:white; }
+    #recipePanel h2 { margin-top:0; font-size:22px; text-align:center; }
+    #recipePanel ul { list-style:none; padding:0; }
+    #recipePanel li { margin:5px 0; font-weight:bold; }
+    #recipePanel li.collected { color:lightgreen; }
+    #recipePanel.chocolate { background-color:#8B4513; }
+    #recipePanel.blueberry { background-color:#1E90FF; }
+    #recipePanel.cherry { background-color:#FF69B4; }
   </style>
-</head>
-<body>
-  <div id="startScreen">
-    <h1 style="color:white;font-size:36px;margin-bottom:12px">Bake your cake</h1>
-    <button id="startBtn" style="padding:12px 20px;font-size:18px;border-radius:8px;cursor:pointer">Start</button>
-  </div>
-
-  <div id="cakeChoices">
-    <div style="display:flex;flex-direction:column;align-items:center;">
-      <div class="cake-tab" id="strawberryTab" data-cake="strawberry">Strawberry Cake</div>
-      <div class="cake-tab" id="blueberryTab" data-cake="blueberry">Blueberry Cake</div>
-      <div class="cake-tab" id="cherryTab" data-cake="cherry">Cherry Cake</div>
-      <button id="backBtn" style="margin-top:12px;padding:8px 14px;border-radius:8px;cursor:pointer">Back</button>
-    </div>
-  </div>
-
-  <div id="recipePanel"></div>
-  <div id="loadingBarContainer"><div id="loadingBar"></div></div>
-  <button id="quitButton">Quit</button>
-  <div id="debugHint">Open Console (F12) for model logs</div>
-  <div id="congratsMessage">🎉 Congratulations, very delicious! 🎂</div>
-
-  <a-scene id="scene" physics="gravity: -9.8;" style="display:none;" cursor="rayOrigin: mouse" raycaster="objects: .clickable">
-    <a-entity id="rig" position="0 20 8" movement-controls="speed:30">
-      <a-camera id="firstPersonCam" look-controls camera="active:true">
-        <a-cursor fuse="false" material="color:white; shader:flat"></a-cursor>
-      </a-camera>
-    </a-entity>
-    <a-entity id="topDownCam" position="0 80 80" rotation="-45 0 0" camera="active:false"></a-entity>
-
-    <!-- Better lighting -->
-    <a-entity light="type:ambient; intensity:0.8"></a-entity>
-    <a-entity light="type:directional; intensity:1.2" position="10 50 20"></a-entity>
-    <a-entity light="type:point; intensity:1.0" position="-10 30 10"></a-entity>
-
-    <!-- Static kitchen models -->
-    <a-entity id="e_floor" gltf-model="floor.glb" material="side:double"></a-entity>
-    <a-entity id="e_fridge" gltf-model="fridge.glb" material="side:double"></a-entity>
-    <a-entity id="e_countertopdecor" gltf-model="countertopdecor.glb" material="side:double"></a-entity>
-    <a-entity id="e_mixingbowl" gltf-model="mixingbowl.glb" material="side:double"></a-entity>
-    <a-entity id="e_stove" gltf-model="stove.glb" material="side:double"></a-entity>
-    <a-entity id="e_backwall" gltf-model="backwall.glb" material="side:double"></a-entity>
-    <a-entity id="e_frontwall" gltf-model="frontwall.glb" material="side:double"></a-entity>
-    <a-entity id="e_leftwall" gltf-model="leftwall.glb" material="side:double"></a-entity>
-    <a-entity id="e_rightwall" gltf-model="rightwall.glb" material="side:double"></a-entity>
-    <a-entity id="e_windowdecor" gltf-model="windowdecor.glb" material="side:double"></a-entity>
-    <a-entity id="e_light" gltf-model="light.glb" material="side:double"></a-entity>
-    <a-entity id="e_wallclock" gltf-model="wallclock.glb" material="side:double"></a-entity>
-    <a-entity id="e_walldecor" gltf-model="walldecor.glb" material="side:double"></a-entity>
-    <a-entity id="e_walllines" gltf-model="walllines.glb" material="side:double"></a-entity>
-    <a-entity id="e_rollingpin" gltf-model="rollingpin.glb" material="side:double"></a-entity>
-    <a-entity id="e_smallplate" gltf-model="smallplate.glb" material="side:double"></a-entity>
-    <a-entity id="e_stool" gltf-model="stool.glb" material="side:double"></a-entity>
-    <a-entity id="e_pan" gltf-model="pan.glb" material="side:double"></a-entity>
-    <a-entity id="e_plate" gltf-model="plate.glb" material="side:double"></a-entity>
-    <a-entity id="e_mug1" gltf-model="mug1.glb" material="side:double"></a-entity>
-    <a-entity id="e_eggcarton" gltf-model="eggcarton.glb" material="side:double"></a-entity>
-    <a-entity id="e_chefhat" gltf-model="chefhat.glb" material="side:double"></a-entity>
-    <a-entity id="e_exhaustfan" gltf-model="exhaustfan.glb" material="side:double"></a-entity>
-    <a-entity id="e_cuttingboard" gltf-model="cuttingboard.glb" material="side:double"></a-entity>
-
-    <!-- Collectables -->
-    <a-entity id="flour" gltf-model="flour.glb" class="collectable clickable" collectable data-name="flour" material="side:double"></a-entity>
-    <a-entity id="sugar" gltf-model="sugar.glb" class="collectable clickable" collectable data-name="sugar" material="side:double"></a-entity>
-    <a-entity id="butter" gltf-model="butter.glb" class="collectable clickable" collectable data-name="butter" material="side:double"></a-entity>
-    <a-entity id="milk" gltf-model="milk.glb" class="collectable clickable" collectable data-name="milk" material="side:double"></a-entity>
-    <a-entity id="chocolate" gltf-model="chocolate.glb" class="collectable clickable" collectable data-name="chocolate" material="side:double"></a-entity>
-    <a-entity id="strawberry" gltf-model="strawberry.glb" class="collectable clickable" collectable data-name="strawberry" material="side:double"></a-entity>
-    <a-entity id="vanilla" gltf-model="vanilla.glb" class="collectable clickable" collectable data-name="vanilla" material="side:double"></a-entity>
-    <a-entity id="whisk" gltf-model="whisk.glb" class="collectable clickable" collectable data-name="whisk" material="side:double"></a-entity>
-  </a-scene>
-
   <script>
-    const PLAYER_HEIGHT = 50;
-    const PLAYER_SPEED = 100;
     let currentIngredients = [];
-    let currentCake = "";
-    const recipePanel = document.getElementById('recipePanel');
-    const loadingBarContainer = document.getElementById('loadingBarContainer');
-    const loadingBar = document.getElementById('loadingBar');
-    const startBtn = document.getElementById('startBtn');
-    const backBtn = document.getElementById('backBtn');
-    const quitBtn = document.getElementById('quitButton');
 
-    // Hook up start button
-    startBtn.addEventListener('click', () => {
-      document.getElementById('startScreen').style.display = 'none';
-      document.getElementById('cakeChoices').style.display = 'flex';
-    });
-
-    // Hook up back button
-    backBtn.addEventListener('click', () => {
-      document.getElementById('cakeChoices').style.display = 'none';
-      document.getElementById('startScreen').style.display = 'flex';
-    });
-
-    // Hook up quit button
-    quitBtn.addEventListener('click', quitGame);
-
-    window.addEventListener('load', () => {
-      const rig = document.getElementById('rig');
-      const pos = rig.getAttribute('position') || {x:0,y:1.6,z:5};
-      rig.setAttribute('position', { x: pos.x || 0, y: PLAYER_HEIGHT, z: pos.z || 8 });
-      rig.setAttribute('movement-controls', `speed: ${PLAYER_SPEED}`);
-    });
+    function startGame(){
+      document.getElementById('startScreen').style.display='none';
+      document.getElementById('cakeChoices').style.display='flex';
+    }
 
     function chooseCake(cakeName){
-      currentCake = cakeName;
-      document.getElementById('cakeChoices').style.display = 'none';
-      document.getElementById('scene').style.display = 'block';
-      recipePanel.style.display = 'block';
+      document.getElementById('cakeChoices').style.display='none';
+      document.getElementById('scene').style.display='block';
+
+      const recipePanel = document.getElementById('recipePanel');
+      recipePanel.style.display='block';
       recipePanel.className = cakeName;
 
-      if (cakeName === 'blueberry') {
-        currentIngredients = ["flour","sugar","butter","milk","vanilla","blueberry","strawberry","spatula","whisk"];
-      } else if (cakeName === 'strawberry') {
-        currentIngredients = ["flour","sugar","butter","milk","vanilla","chocolate","strawberry","spatula","whisk"];
-      } else if (cakeName === 'cherry') {
+      if(cakeName==='blueberry'){
+        currentIngredients = ["flour","sugar","butter","milk","vanilla","blueberries","strawberry","spatula","whisk"];
+      } else if(cakeName==='chocolate'){
+        currentIngredients = ["flour","sugar","butter","milk","vanilla","choco","strawberry","spatula","whisk"];
+      } else if(cakeName==='cherry'){
         currentIngredients = ["flour","sugar","butter","milk","vanilla","cherries","spatula","whisk"];
       }
 
-      recipePanel.innerHTML = `<h2>${cakeName.charAt(0).toUpperCase()+cakeName.slice(1)} Cake</h2>
-        <ul>${currentIngredients.map(i => `<li id="recipe-${i.replace(/\s+/g,'-')}"><span class="check"></span> ${i}</li>`).join('')}</ul>`;
+      recipePanel.innerHTML=`<h2>${cakeName.charAt(0).toUpperCase()+cakeName.slice(1)} Cake</h2>
+        <ul>${currentIngredients.map(i=>`<li id="recipe-${i}"><span class="check"></span> ${i}</li>`).join('')}</ul>`;
 
-      document.querySelectorAll('a-entity.collectable').forEach(el => {
+      // Show all kitchen objects and scale collectables
+      document.querySelectorAll('a-entity').forEach(el=>{
         el.setAttribute('visible', true);
-        el.classList.add('clickable');
+        if(el.classList.contains('collectable')){
+          el.setAttribute('scale','2 2 2'); // make clickable
+        }
       });
     }
 
-    // Hook up cake choice tabs
-    document.querySelectorAll('.cake-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        const cakeName = tab.getAttribute('data-cake');
-        chooseCake(cakeName);
-      });
-    });
-
+    // Collectable component
     AFRAME.registerComponent('collectable',{
-      init: function(){
-        // ensure this.el has class 'clickable' so raycaster/cursor can hit it
-        this.el.classList.add('clickable');
-        this.el.addEventListener('click', (evt) => {
-          console.log('Clicked collectable:', this.el.id, this.el.getAttribute('data-name'));
-          const rawName = this.el.getAttribute('data-name');
-          if (!rawName) return;
-          const name = rawName;
-          const found = currentIngredients.find(i => i.toLowerCase() === name.toLowerCase());
-          if (found) {
-            this.el.setAttribute('visible', false);
-            const li = document.getElementById(`recipe-${found.replace(/\s+/g,'-')}`);
-            if (li) {
-              li.querySelector('.check').textContent = '✅';
-              li.classList.add('collected');
-            }
-
-            const allCollected = currentIngredients.every(i => {
-              const li2 = document.getElementById(`recipe-${i.replace(/\s+/g,'-')}`);
-              return li2 && li2.classList.contains('collected');
-            });
-            if (allCollected) showLoadingBar();
+      init:function(){
+        this.el.addEventListener('click', ()=>{
+          const name = this.el.getAttribute('data-name');
+          if(currentIngredients.includes(name)){
+            this.el.setAttribute('visible', false); // disappear
+            const li = document.getElementById(`recipe-${name}`);
+            if(li){ li.querySelector('.check').textContent="✅"; li.classList.add('collected'); }
           }
         });
       }
     });
-
-    function showLoadingBar(){
-      loadingBarContainer.style.display = 'block';
-      loadingBar.style.width = '0%';
-      setTimeout(()=> loadingBar.style.width = '100%', 100);
-
-      setTimeout(()=> {
-        loadingBarContainer.style.display = 'none';
-        quitBtn.style.display = 'block';
-
-        let cakeModel = 'cake.glb';
-        if (currentCake === 'strawberry') cakeModel = 'strawberrycake.glb';
-        if (currentCake === 'blueberry') cakeModel = 'blueberrycake.glb';
-        if (currentCake === 'cherry') cakeModel = 'cherrycake.glb';
-
-        const cam = document.querySelector('#firstPersonCam');
-        if (cam && cam.object3D) {
-          const camObj = cam.object3D;
-          const forward = new THREE.Vector3();
-          camObj.getWorldDirection(forward);
-          const spawnPos = new THREE.Vector3();
-          camObj.getWorldPosition(spawnPos);
-          spawnPos.add(forward.multiplyScalar(2.5));
-          spawnPos.y = spawnPos.y - 1.5;
-
-          const cakeEnt = document.createElement('a-entity');
-          cakeEnt.setAttribute('gltf-model', cakeModel);
-          cakeEnt.setAttribute('position', `${spawnPos.x} ${spawnPos.y} ${spawnPos.z}`);
-          cakeEnt.setAttribute('material', 'side:double');
-          document.querySelector('a-scene').appendChild(cakeEnt);
-        }
-
-        document.getElementById('congratsMessage').style.display = 'block';
-        setTimeout(() => {
-          document.getElementById('congratsMessage').style.display = 'none';
-        }, 4000);
-      }, 5200);
-    }
-
-    function quitGame(){
-      document.getElementById('scene').style.display = 'none';
-      recipePanel.style.display = 'none';
-      quitBtn.style.display = 'none';
-      document.getElementById('startScreen').style.display = 'flex';
-
-      // remove spawned cakes
-      document.querySelectorAll("a-entity[gltf-model]").forEach(ent => {
-        const modelAttr = ent.getAttribute('gltf-model') || '';
-        if (typeof modelAttr === 'string' && modelAttr.toLowerCase().includes('cake')) {
-          ent.remove();
-        }
-      });
-      currentIngredients = [];
-    }
   </script>
+</head>
+<body>
+  <div id="startScreen">
+    <h1 style="color:white;">Bake your cake</h1>
+    <button onclick="startGame()">Start</button>
+  </div>
+
+  <div id="cakeChoices">
+    <div id="chocolateTab" class="cake-tab" onclick="chooseCake('chocolate')">Chocolate Cake</div>
+    <div id="blueberryTab" class="cake-tab" onclick="chooseCake('blueberry')">Blueberry Cake</div>
+    <div id="cherryTab" class="cake-tab" onclick="chooseCake('cherry')">Cherry Cake</div>
+  </div>
+
+  <div id="recipePanel"></div>
+
+  <a-scene id="scene" style="display:none;" physics="gravity: -9.8;">
+    <!-- Camera with mouse cursor -->
+    <a-entity position="0 1.6 7">
+      <a-camera>
+        <a-cursor rayOrigin="mouse" fuse="false" material="color:black; shader:flat"></a-cursor>
+      </a-camera>
+    </a-entity>
+
+    <a-entity light="type:ambient; intensity:0.5"></a-entity>
+    <a-entity light="type:directional; intensity:0.8" position="0 2 1"></a-entity>
+
+    <!-- Full kitchen with colliders -->
+    <a-entity id="kitchenrightwall" gltf-model="kitchenrightwall.glb" static-body></a-entity>
+    <a-entity id="blackcabinet" gltf-model="blackcabinet.glb" static-body></a-entity>
+    <a-entity id="blackplate" gltf-model="blackplate.glb" static-body></a-entity>
+    <a-entity id="bluebottle" gltf-model="bluebottle.glb" static-body></a-entity>
+    <a-entity id="bowl" gltf-model="bowl.glb" static-body></a-entity>
+    <a-entity id="clock" gltf-model="clock.glb" static-body></a-entity>
+    <a-entity id="coffee" gltf-model="coffee.glb" static-body></a-entity>
+    <a-entity id="coffeemaker" gltf-model="coffeemaker.glb" static-body></a-entity>
+    <a-entity id="counterfloorright" gltf-model="counterfloorright.glb" static-body></a-entity>
+    <a-entity id="exhaustfan" gltf-model="exhaustfan.glb" static-body></a-entity>
+    <a-entity id="faucet" gltf-model="faucet.glb" static-body></a-entity>
+    <a-entity id="floor" gltf-model="floor.glb" static-body></a-entity>
+    <a-entity id="kitchenopenwall" gltf-model="kitchenopenwall.glb" static-body></a-entity>
+    <a-entity id="kitchenroofslide" gltf-model="kitchenroofslide.glb" static-body></a-entity>
+    <a-entity id="kitchenrooftop" gltf-model="kitchenrooftop.glb" static-body></a-entity>
+    <a-entity id="kitchenwallback" gltf-model="kitchenwallback.glb" static-body></a-entity>
+    <a-entity id="kniveholder" gltf-model="kniveholder.glb" static-body></a-entity>
+    <a-entity id="plant" gltf-model="plant.glb" static-body></a-entity>
+    <a-entity id="plantwindow" gltf-model="plantwindow.glb" static-body></a-entity>
+    <a-entity id="salt1" gltf-model="salt1.glb" static-body></a-entity>
+    <a-entity id="salt2" gltf-model="salt2.glb" static-body></a-entity>
+    <a-entity id="salt3" gltf-model="salt3.glb" static-body></a-entity>
+    <a-entity id="shelves" gltf-model="shelves.glb" static-body></a-entity>
+    <a-entity id="sink" gltf-model="sink.glb" static-body></a-entity>
+    <a-entity id="stool" gltf-model="stool.glb" static-body></a-entity>
+    <a-entity id="stove" gltf-model="stove.glb" static-body></a-entity>
+    <a-entity id="stovecabinets" gltf-model="stovecabinets.glb" static-body></a-entity>
+    <a-entity id="wallclock" gltf-model="wallclock.glb" static-body></a-entity>
+    <a-entity id="wallcountertop" gltf-model="wallcountertop.glb" static-body></a-entity>
+    <a-entity id="wallstove1" fbx-model="wallstove1.fbx" static-body></a-entity>
+    <a-entity id="whitebottle" gltf-model="whitebottle.glb" static-body></a-entity>
+    <a-entity id="windowbottom" gltf-model="windowbottom.glb" static-body></a-entity>
+
+    <!-- Collectable ingredients with invisible colliders -->
+    <a-entity id="flour" gltf-model="flour.glb" class="collectable" collectable data-name="flour" position="4 2 0.5">
+      <a-box visible="false" class="click-target" scale="2 2 2"></a-box>
+    </a-entity>
+    <a-entity id="sugar" gltf-model="sugar.glb" class="collectable" collectable data-name="sugar" position="1 2 0.5">
+      <a-box visible="false" class="click-target" scale="2 2 2"></a-box>
+    </a-entity>
+    <a-entity id="butter" gltf-model="butter.glb" class="collectable" collectable data-name="butter" position="-2 2 1.5">
+      <a-box visible="false" class="click-target" scale="2 2 2"></a-box>
+    </a-entity>
+    <a-entity id="milk" gltf-model="milk.glb" class="collectable" collectable data-name="milk" position="7 2 1">
+      <a-box visible="false" class="click-target" scale="2 2 2"></a-box>
+    </a-entity>
+    <a-entity id="vanilla" gltf-model="vanilla.glb" class="collectable" collectable data-name="vanilla" position="-1 2 1">
+      <a-box visible="false" class="click-target" scale="2 2 2"></a-box>
+    </a-entity>
+    <a-entity id="blueberries" gltf-model="blueberries.glb" class="collectable" collectable data-name="blueberries" position="0.5 2 2">
+      <a-box visible="false" class="click-target" scale="2 2 2"></a-box>
+    </a-entity>
+    <a-entity id="strawberry" gltf-model="strawberry.glb" class="collectable" collectable data-name="strawberry" position="9 2 2">
+      <a-box visible="false" class="click-target" scale="2 2 2"></a-box>
+    </a-entity>
+    <a-entity id="spatula" gltf-model="spatula.glb" class="collectable" collectable data-name="spatula" position="-4 2 2.5">
+      <a-box visible="false" class="click-target" scale="2 2 2"></a-box>
+    </a-entity>
+    <a-entity id="whisk" gltf-model="whisk.glb" class="collectable" collectable data-name="whisk" position="10 2 2.5">
+      <a-box visible="false" class="click-target" scale="2 2 2"></a-box>
+    </a-entity>
+
+    <a-sound id="mainmusic" src="baking cooking jazz.mp3" autoplay="false" loop="true"></a-sound>
+  </a-scene>
 </body>
 </html>
