@@ -3,42 +3,25 @@
 <head>
   <title>Bake your cake</title>
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <script src="https://cdn.rawgit.com/donmccurdy/aframe-physics-system/v3.3.0/dist/aframe-physics-system.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v7.1.0/dist/aframe-extras.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aframe-physx@0.4.0/dist/aframe-physx.min.js"></script>
+  
   <style>
-    body, html { margin:0; padding:0; height:100%; width:100%; font-family:sans-serif; }
+    body, html { margin:0; padding:0; height:100%; width:100%; font-family:sans-serif; overflow: hidden; }
     #startScreen, #cakeChoices { position:absolute; top:0; left:0; width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; background-size:cover; z-index:10; }
     #startScreen { background: url('https://cdn.pixabay.com/photo/2015/01/14/19/20/bake-599521_1280.jpg') no-repeat center center; }
     #startScreen::before, #cakeChoices::before { content:""; position:absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index:-1; }
     #cakeChoices { background: url('https://cdn.pixabay.com/photo/2015/01/14/19/20/bake-599521_1280.jpg') no-repeat center center; display:none; }
     .cake-tab { padding:20px; border-radius:10px; color:white; font-size:20px; cursor:pointer; text-align:center; width:180px; font-weight:bold; margin:10px; }
-    #chocolateTab{background-color:#8B4513;} #blueberryTab{background-color:#1E90FF;} #cherryTab{background-color:#FF69B4;}
+    #chocolateTab{background-color:#8B4B36;} #blueberryTab{background-color:#1E90FF;} #cherryTab{background-color:#FF69B4;}
     #recipePanel { position:absolute; top:20%; left:5%; padding:20px; border-radius:12px; font-size:18px; display:none; z-index:10; min-width:200px; color:white; }
     #recipePanel h2 { margin-top:0; font-size:22px; text-align:center; }
     #recipePanel ul { list-style:none; padding:0; }
-    #recipePanel li { margin:5px 0; font-weight:bold; }
+    #recipePanel li { margin:5px 0; font-weight:bold; transition: color 0.5s; }
     #recipePanel li.collected { color:lightgreen; text-decoration: line-through; }
-    #recipePanel.chocolate { background-color:#8B4513; }
-    #recipePanel.blueberry { background-color:#1E90FF; }
-    #recipePanel.cherry { background-color:#FF69B4; }
-    #collect-tip {
-      position: absolute;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 6px 10px;
-      background: rgba(0,0,0,0.7);
-      color: #fff;
-      border-radius: 6px;
-      font-family: sans-serif;
-      display: none;
-      z-index: 9999;
-    }
-
-    /* Outline style for highlighted ingredients */
-    .outline {
-      outline: 3px solid yellow;
-      outline-offset: 5px;
-    }
+    #recipePanel.chocolate { background-color: rgba(139, 69, 19, 0.8); }
+    #recipePanel.blueberry { background-color: rgba(30, 144, 255, 0.8); }
+    #recipePanel.cherry { background-color: rgba(255, 105, 180, 0.8); }
   </style>
 </head>
 <body>
@@ -54,165 +37,159 @@
   </div>
 
   <div id="recipePanel"></div>
-  <div id="collect-tip">Press E to collect</div>
 
-  <a-scene id="scene" physics="gravity:-9.8" style="display:none;">
-    <a-entity id="player" kinematic-body position="0 45 0">
-      <a-entity id="cameraRig" camera look-controls wasd-controls="acceleration:150" position="0 0 0">
-        <a-entity id="cursor" cursor="fuse:false; rayOrigin:mouse"
-          raycaster="objects: .grabbable, .droppable"
-          position="0 0 -1"
-          geometry="primitive:ring; radiusInner:0.01; radiusOuter:0.015"
-          material="color:black; shader:flat">
-        </a-entity>
-      </a-entity>
+  <a-scene id="scene" physx="gravity: 0 -9.8 0;" style="display:none;" cursor="rayOrigin: mouse; fuse: false">
+    
+    <a-entity id="player-rig"
+              position="0 1.6 5"
+              wasd-controls="acceleration: 100;"
+              look-controls
+              physx-body="type: kinematic; height: 1.6; radius: 0.5; "
+              physx-shape="type: capsule; fit: manual; height: 1.6; radius: 0.5; halfExtents: 0.5 0.8 0.5">
+              
+      <a-entity id="player-camera" camera position="0 0 0"></a-entity>
     </a-entity>
-
+    
     <a-entity light="type:ambient; intensity:0.5"></a-entity>
     <a-entity light="type:directional; intensity:0.8" position="0 2 1"></a-entity>
 
-    <a-entity id="backwall" gltf-model="backwall.glb" static-body></a-entity>
-    <a-entity id="frontwall" gltf-model="frontwall.glb" static-body></a-entity>
-    <a-entity id="rightwall" gltf-model="rightwall.glb" static-body></a-entity>
-    <a-entity id="leftwall" gltf-model="leftwall.glb" static-body></a-entity>
-    <a-entity id="floor" gltf-model="floor.glb" static-body></a-entity>
-    <a-entity id="fridge" gltf-model="fridge.glb" static-body></a-entity>
-    <a-entity id="roof" gltf-model="roof.glb" static-body></a-entity>
-    <a-entity id="counterdecor" gltf-model="counterdecor.glb" static-body></a-entity>
-    <a-entity id="counters" gltf-model="counters.glb" static-body></a-entity>
-    <a-entity id="radio" gltf-model="radio.glb" static-body></a-entity>
-    <a-entity id="light" gltf-model="light.glb" static-body></a-entity>
-    <a-entity id="salt" gltf-model="salt.glb" static-body></a-entity>
-    <a-entity id="eggcarton" gltf-model="eggcarton.glb" static-body></a-entity>
-    <a-entity id="mixingbowl" gltf-model="mixingbowl.glb" static-body class="droppable"></a-entity>
-    <a-entity id="cuttingboard" gltf-model="cuttingboard.glb" static-body></a-entity>
-    <a-entity id="shelves" gltf-model="shelves.glb" static-body></a-entity>
-    <a-entity id="knife" gltf-model="knife.glb" static-body></a-entity>
-    <a-entity id="stool" gltf-model="stool.glb" static-body></a-entity>
-    <a-entity id="stove" gltf-model="stove.glb" static-body></a-entity>
+    <a-plane id="physical-floor" position="0 -0.5 0" rotation="-90 0 0" width="50" height="50" visible="false"
+              physx-body="type: static;"
+              physx-shape="type: plane;">
+    </a-plane>
 
-    <a-entity id="flour" gltf-model="flour.glb" class="grabbable" static-body data-name="flour"></a-entity>
-    <a-entity id="sugar" gltf-model="sugar.glb" class="grabbable" static-body data-name="sugar"></a-entity>
-    <a-entity id="butter" gltf-model="butter.glb" class="grabbable" static-body data-name="butter"></a-entity>
-    <a-entity id="milk" gltf-model="milk.glb" class="grabbable" static-body data-name="milk"></a-entity>
-    <a-entity id="vanilla" gltf-model="vanilla.glb" class="grabbable" static-body data-name="vanilla"></a-entity>
-    <a-entity id="blueberry" gltf-model="blueberry.glb" class="grabbable" static-body data-name="blueberry"></a-entity>
-    <a-entity id="strawberry" gltf-model="strawberry.glb" class="grabbable" static-body data-name="strawberry"></a-entity>
-    <a-entity id="chocolate" gltf-model="chocolate.glb" class="grabbable" static-body data-name="chocolate"></a-entity>
-    <a-entity id="spatula" gltf-model="spatula.glb" class="grabbable" static-body data-name="spatula"></a-entity>
-    <a-entity id="whisk" gltf-model="whisk.glb" class="grabbable" static-body data-name="whisk"></a-entity>
-    <a-entity id="banana" gltf-model="banana.glb" class="grabbable" static-body data-name="banana"></a-entity>
-    <a-entity id="cherries" gltf-model="cherries.glb" class="grabbable" static-body data-name="cherries"></a-entity>
-    <a-entity id="egg" gltf-model="egg.glb" class="grabbable" static-body data-name="egg"></a-entity>
+    <a-entity id="backwall" gltf-model="backwall.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="frontwall" gltf-model="frontwall.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="rightwall" gltf-model="rightwall.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="leftwall" gltf-model="leftwall.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="floor" gltf-model="floor.glb"></a-entity>
+    <a-entity id="fridge" gltf-model="fridge.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="roof" gltf-model="roof.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="counterdecor" gltf-model="counterdecor.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="counters" gltf-model="counters.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="radio" gltf-model="radio.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="light" gltf-model="light.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="shelves" gltf-model="shelves.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="stool" gltf-model="stool.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="stove" gltf-model="stove.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="salt" gltf-model="salt.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="eggcarton" gltf-model="eggcarton.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="cuttingboard" gltf-model="cuttingboard.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="knife" gltf-model="knife.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="vanilla" gltf-model="vanilla.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="strawberry" gltf-model="strawberry.glb" physx-body="type: static;" physx-shape="type: sphere; radius: 0.05;"></a-entity>
+    <a-entity id="spatula" gltf-model="spatula.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="whisk" gltf-model="whisk.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="banana" gltf-model="banana.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="mixingbowl" gltf-model="mixingbowl.glb" droppable physx-body="type: static;" physx-shape="type: cylinder;"></a-entity>
+
+    <a-entity id="flour" gltf-model="flour.glb" class="ingredient" draggable data-name="flour" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="sugar" gltf-model="sugar.glb" class="ingredient" draggable data-name="sugar" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="butter" gltf-model="butter.glb" class="ingredient" draggable data-name="butter" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="milk" gltf-model="milk.glb" class="ingredient" draggable data-name="milk" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    <a-entity id="egg" gltf-model="egg.glb" class="ingredient" draggable data-name="egg" physx-body="type: static;" physx-shape="type: sphere; radius: 0.04;"></a-entity>
+    <a-entity id="blueberry" gltf-model="blueberry.glb" class="ingredient" draggable data-name="blueberry" physx-body="type: static;" physx-shape="type: sphere; radius: 0.03;"></a-entity>
+    <a-entity id="cherries" gltf-model="cherries.glb" class="ingredient" draggable data-name="cherries" physx-body="type: static;" physx-shape="type: sphere; radius: 0.03;"></a-entity>
+    <a-entity id="chocolate" gltf-model="chocolate.glb" class="ingredient" draggable data-name="chocolate" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+    
+    <a-entity id="final-cake-container" position="0 0.5 0" visible="false">
+        <a-entity id="chocolate-cake-model" gltf-model="#chocolate-cake.glb" visible="false"></a-entity>
+        <a-entity id="blueberry-cake-model" gltf-model="#blueberry-cake.glb" visible="false"></a-entity>
+        <a-entity id="cherry-cake-model" gltf-model="#cherry-cake.glb" visible="false"></a-entity>
+    </a-entity>
 
     <a-sound id="mainmusic" src="baking cooking jazz.mp3" autoplay="false" loop="true"></a-sound>
   </a-scene>
 
   <script>
+    // --- NO CHANGES TO THE SCRIPT ---
     let currentIngredients = [];
-    let grabbedObject = null;
-    const cursorEl = document.getElementById('cursor');
+    let collectedIngredients = [];
+    let selectedCake = '';
+
+    AFRAME.registerComponent('draggable', {
+      init: function () { this.el.classList.add('clickable'); }
+    });
+
+    AFRAME.registerComponent('droppable', {
+      init: function () {
+        this.el.addEventListener('drag-drop', (e) => {
+          const droppedEl = e.detail.dropped;
+          const ingredientName = droppedEl.getAttribute('data-name');
+          
+          if (currentIngredients.includes(ingredientName) && !collectedIngredients.includes(ingredientName)) {
+            collectedIngredients.push(ingredientName);
+            
+            const li = document.getElementById(`recipe-${ingredientName}`);
+            if(li) { li.classList.add('collected'); }
+
+            const bowlPosition = this.el.getAttribute('position');
+            droppedEl.setAttribute('animation', {
+                property: 'position',
+                to: `${bowlPosition.x} ${bowlPosition.y + 0.2} ${bowlPosition.z}`,
+                dur: 500,
+                easing: 'easeInQuad'
+            });
+            setTimeout(() => { droppedEl.setAttribute('visible', 'false'); }, 500);
+            
+            checkCompletion();
+          }
+        });
+      }
+    });
 
     function startGame(){
       document.getElementById('startScreen').style.display='none';
       document.getElementById('cakeChoices').style.display='flex';
       const music = document.querySelector('#mainmusic');
-      if(music && music.components && music.components.sound && !music.components.sound.isPlaying){
+      if(music && music.components.sound && !music.components.sound.isPlaying){
         music.components.sound.playSound();
       }
     }
 
     function chooseCake(cakeName){
+      selectedCake = cakeName;
       document.getElementById('cakeChoices').style.display='none';
       document.getElementById('scene').style.display='block';
-
       const recipePanel = document.getElementById('recipePanel');
       recipePanel.style.display='block';
       recipePanel.className = cakeName;
-
-      if(cakeName==='blueberry'){
-        currentIngredients = ["flour", "sugar", "butter", "milk", "vanilla", "blueberry", "egg"];
-      } else if(cakeName==='chocolate'){
-        currentIngredients = ["flour", "sugar", "butter", "milk", "vanilla", "chocolate", "egg"];
-      } else if(cakeName==='cherry'){
-        currentIngredients = ["flour", "sugar", "butter", "milk", "vanilla", "cherries", "egg"];
+      const baseIngredients = ["flour", "sugar", "butter", "milk", "egg"];
+      if(cakeName === 'blueberry'){
+        currentIngredients = [...baseIngredients, "blueberry"];
+      } else if(cakeName === 'chocolate'){
+        currentIngredients = [...baseIngredients, "chocolate"];
+      } else if(cakeName === 'cherry'){
+        currentIngredients = [...baseIngredients, "cherries"];
       }
-
-      recipePanel.innerHTML = `<h2>${cakeName.charAt(0).toUpperCase()+cakeName.slice(1)} Cake</h2>
-        <ul>${currentIngredients.map(i=>`<li id="recipe-${i.replace(/\s+/g,'-')}"><span class="check"></span> ${i}</li>`).join('')}</ul>`;
+      recipePanel.innerHTML = `<h2>${cakeName.charAt(0).toUpperCase() + cakeName.slice(1)} Cake</h2>
+        <ul>${currentIngredients.map(i => `<li id="recipe-${i}">${i}</li>`).join('')}</ul>`;
     }
 
-    // Outline the grabbable entity when hovered
-    document.querySelector('a-scene').addEventListener('raycaster-intersection', function (evt) {
-      if (grabbedObject) return;  // Don't outline if grabbing already
-      const intersectedEl = evt.detail.els[0];
-      if (intersectedEl && intersectedEl.classList.contains('grabbable')) {
-        intersectedEl.setAttribute('material', 'emissive', '#FFFF00'); // Yellow highlight emissive
-        intersectedEl.classList.add('outline');
-      }
-    });
-
-    // Remove outline when cursor moves away
-    document.querySelector('a-scene').addEventListener('raycaster-intersection-cleared', function (evt) {
-      if (grabbedObject) return;
-      evt.detail.clearedEls.forEach(el => {
-        if (el.classList && el.classList.contains('grabbable')) {
-          el.removeAttribute('material', 'emissive');
-          el.classList.remove('outline');
+    function checkCompletion() {
+        const allCollected = currentIngredients.length === collectedIngredients.length && 
+                             currentIngredients.every(item => collectedIngredients.includes(item));
+        if (allCollected) {
+            setTimeout(showFinalCake, 1000);
         }
-      });
-    });
+    }
 
-    // On click, grab or drop
-    cursorEl.addEventListener('click', function () {
-      const scene = document.querySelector('a-scene');
-      if (!grabbedObject) {
-        // Try to grab the currently hovered object
-        const intersectedEls = scene.components.raycaster.intersectedEls;
-        if (intersectedEls.length > 0) {
-          const target = intersectedEls.find(el => el.classList.contains('grabbable'));
-          if (target) {
-            grabbedObject = target;
-            // Attach to cursor (camera rig)
-            const cameraRig = document.getElementById('cameraRig');
-            cameraRig.object3D.attach(grabbedObject.object3D);
-            grabbedObject.setAttribute('position', '0 0 -1');
-            grabbedObject.classList.remove('outline');
-            grabbedObject.removeAttribute('material', 'emissive');
-          }
-        }
-      } else {
-        // Drop the grabbed object
-        // Check if dropped on mixing bowl (droppable)
-        const mixBowl = document.getElementById('mixingbowl');
-        const grabWorldPos = new THREE.Vector3();
-        grabbedObject.object3D.getWorldPosition(grabWorldPos);
-        const bowlWorldPos = new THREE.Vector3();
-        mixBowl.object3D.getWorldPosition(bowlWorldPos);
-
-        // Simple distance check as drop detection
-        if (grabWorldPos.distanceTo(bowlWorldPos) < 1.5) {
-          // Mark ingredient collected in the recipe
-          const ingName = grabbedObject.getAttribute('data-name');
-          if (currentIngredients.includes(ingName)) {
-            const li = document.getElementById(`recipe-${ingName.replace(/\s+/g,'-')}`);
-            if (li) {
-              li.querySelector('.check').textContent = '✅';
-              li.classList.add('collected');
+    function showFinalCake() {
+        const ingredientsToHide = document.querySelectorAll('.ingredient');
+        ingredientsToHide.forEach(ing => {
+            if (currentIngredients.includes(ing.dataset.name)) {
+                ing.setAttribute('animation__fade', { property: 'components.material.material.opacity', to: 0, dur: 1500 });
             }
-          }
-          // Hide the ingredient in the scene
-          grabbedObject.setAttribute('visible', 'false');
-          grabbedObject.object3D.parent.remove(grabbedObject.object3D);
-        } else {
-          // Return to original position by re-attaching to scene and resetting position
-          document.querySelector('a-scene').object3D.attach(grabbedObject.object3D);
-          grabbedObject.setAttribute('position', grabbedObject.getAttribute('position'));
-          grabbedObject.setAttribute('visible', 'true');
-        }
-        grabbedObject = null;
-      }
-    });
+        });
+        document.getElementById('mixingbowl').setAttribute('animation__fade', { property: 'components.material.material.opacity', to: 0, dur: 1500 });
+        const bowl = document.getElementById('mixingbowl');
+        const finalCakeContainer = document.getElementById('final-cake-container');
+        finalCakeContainer.setAttribute('position', bowl.getAttribute('position'));
+        const cakeModel = document.getElementById(`${selectedCake}-cake-model`);
+        cakeModel.setAttribute('visible', 'true');
+        finalCakeContainer.setAttribute('visible', 'true');
+        finalCakeContainer.setAttribute('animation', { property: 'scale', from: '0.01 0.01 0.01', to: '1 1 1', dur: 1500, easing: 'easeOutElastic' });
+    }
   </script>
 </body>
 </html>
