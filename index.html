@@ -100,53 +100,53 @@
         </a-plane>
 
         <!-- Kitchen Fixtures with PhysX bodies for collision -->
-        <a-entity id="backwall" gltf-model="#backwall-model" physx-body="type: static;" physx-shape="type: box;"></a-entity>
-        <a-entity id="frontwall" gltf-model="#frontwall-model" physx-body="type: static;" physx-shape="type: box;"></a-entity>
-        <a-entity id="rightwall" gltf-model="#rightwall-model" physx-body="type: static;" physx-shape="type: box;"></a-entity>
-        <a-entity id="leftwall" gltf-model="#leftwall-model" physx-body="type: static;" physx-shape="type: box;"></a-entity>
-        <a-entity id="floor" gltf-model="#floor-model"></a-entity>
-        <a-entity id="fridge" gltf-model="#fridge-model" physx-body="type: static;" physx-shape="type: box;"></a-entity>
-        <a-entity id="roof" gltf-model="#roof-model" physx-body="type: static;" physx-shape="type: box;"></a-entity>
-        <a-entity id="counterdecor" gltf-model="#counterdecor-model" physx-body="type: static;" physx-shape="type: box;"></a-entity>
-        <a-entity id="counters" gltf-model="#counters-model" physx-body="type: static;" physx-shape="type: box;"></a-entity>
-        <a-entity id="radio" gltf-model="#radio-model" physx-body="type: static;" physx-shape="type: box;"></a-entity>
-        <a-entity id="light" gltf-model="#light-model" physx-body="type: static;" physx-shape="type: box;"></a-entity>
-        <a-entity id="shelves" gltf-model="#shelves-model" physx-body="type: static;" physx-shape="type: box;"></a-entity>
-        <a-entity id="stool" gltf-model="#stool-model" physx-body="type: static;" physx-shape="type: box;"></a-entity>
-        <a-entity id="stove" gltf-model="#stove-model" physx-body="type: static;" physx-shape="type: box;"></a-entity>
-        <a-entity id="eggcarton" gltf-model="#eggcarton-model" physx-body="type: static;" physx-shape="type: box;"></a-entity>
-        <a-entity id="cuttingboard" gltf-model="#cuttingboard-model" physx-body="type: static;" physx-shape="type: box;"></a-entity>
-        <a-entity id="knife" gltf-model="#knife-model" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+        <a-entity id="backwall" gltf-model="backwall.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+        <a-entity id="frontwall" gltf-model="frontwall.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+        <a-entity id="rightwall" gltf-model="rightwall.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+        <a-entity id="leftwall" gltf-model="leftwall.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+        <a-entity id="floor" gltf-model="floor.glb"></a-entity>
+        <a-entity id="fridge" gltf-model="fridge.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+        <a-entity id="roof" gltf-model="roof.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+        <a-entity id="counterdecor" gltf-model="counterdecor.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+        <a-entity id="counters" gltf-model="counters.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+        <a-entity id="radio" gltf-model="radio.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+        <a-entity id="light" gltf-model="light.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+        <a-entity id="shelves" gltf-model="shelves.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+        <a-entity id="stool" gltf-model="stool.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+        <a-entity id="stove" gltf-model="stove.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+        <a-entity id="eggcarton" gltf-model="eggcarton.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+        <a-entity id="cuttingboard" gltf-model="cuttingboard.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
+        <a-entity id="knife" gltf-model="knife.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
        
         <a-entity id="mixingbowl" gltf-model="#mixingbowl-model" droppable physx-body="type: static;" physx-shape="type: cylinder;"></a-entity>
 
         <!-- Draggable Ingredients -->
-         <a-entity id="vanilla" gltf-model="#vanilla-model" class="ingredient" draggable data-name="vanilla" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="spatula" gltf-model="#spatula-model" class="ingredient" draggable data-name="spatula" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="whisk" gltf-model="#whisk-model" class="ingredient" draggable data-name="whisk" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="strawberry" gltf-model="#strawberry-model" class="ingredient" draggable data-name="banana" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="banana" gltf-model="#banana-model" class="ingredient" draggable data-name="banana" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="salt" gltf-model="#salt-model" class="ingredient" draggable data-name="salt" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="flour" gltf-model="#flour-model" class="ingredient" draggable data-name="flour" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="sugar" gltf-model="#sugar-model" class="ingredient" draggable data-name="sugar" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="butter" gltf-model="#butter-model" class="ingredient" draggable data-name="butter" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="milk" gltf-model="#milk-model" class="ingredient" draggable data-name="milk" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="egg" gltf-model="#egg-model" class="ingredient" draggable data-name="egg" physx-body="type: dynamic;" physx-shape="type: sphere; radius: 0.04;"></a-entity>
-        <a-entity id="blueberry" gltf-model="#blueberry-model" class="ingredient" draggable data-name="blueberry" physx-body="type: dynamic;" physx-shape="type: sphere; radius: 0.03;"></a-entity>
-        <a-entity id="cherries" gltf-model="#cherries-model" class="ingredient" draggable data-name="cherries" physx-body="type: dynamic;" physx-shape="type: sphere; radius: 0.03;"></a-entity>
-        <a-entity id="chocolate" gltf-model="#chocolate-model" class="ingredient" draggable data-name="chocolate" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+         <a-entity id="vanilla" gltf-model="vanilla.glb" class="ingredient" draggable data-name="vanilla" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        <a-entity id="spatula" gltf-model="spatula.glb" class="ingredient" draggable data-name="spatula" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        <a-entity id="whisk" gltf-model="whisk.glb" class="ingredient" draggable data-name="whisk" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        <a-entity id="strawberry" gltf-model="strawberry.glb" class="ingredient" draggable data-name="banana" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        <a-entity id="banana" gltf-model="banana.glb" class="ingredient" draggable data-name="banana" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        <a-entity id="salt" gltf-model="salt.glb" class="ingredient" draggable data-name="salt" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        <a-entity id="flour" gltf-model="flour.glb" class="ingredient" draggable data-name="flour" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        <a-entity id="sugar" gltf-model="sugar.glb" class="ingredient" draggable data-name="sugar" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        <a-entity id="butter" gltf-model="butter.glb" class="ingredient" draggable data-name="butter" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        <a-entity id="milk" gltf-model="milk.glb" class="ingredient" draggable data-name="milk" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        <a-entity id="egg" gltf-model="egg.glb" class="ingredient" draggable data-name="egg" physx-body="type: dynamic;" physx-shape="type: sphere; radius: 0.04;"></a-entity>
+        <a-entity id="blueberry" gltf-model="blueberry.glb" class="ingredient" draggable data-name="blueberry" physx-body="type: dynamic;" physx-shape="type: sphere; radius: 0.03;"></a-entity>
+        <a-entity id="cherries" gltf-model="cherries.glb" class="ingredient" draggable data-name="cherries" physx-body="type: dynamic;" physx-shape="type: sphere; radius: 0.03;"></a-entity>
+        <a-entity id="chocolate" gltf-model="chocolate.glb" class="ingredient" draggable data-name="chocolate" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
         
         <!-- Final Cake Container - position attribute removed and model names updated -->
         <a-entity id="final-cake-container" visible="false">
-            <a-entity id="strawberrycake" gltf-model="#chocolatecake-model" visible="false"></a-entity>
-            <a-entity id="blueberrycake" gltf-model="#blueberrycake-model" visible="false"></a-entity>
-            <a-entity id="cherrycake1" gltf-model="#cherrycake1-model" visible="false"></a-entity>
-            <a-entity id="cherrycake2" gltf-model="#cherrycake2-model" visible="false"></a-entity>
-            <a-entity id="cherrycake3" gltf-model="#cherrycake3-model" visible="false"></a-entity>
-            <a-entity id="cherrycake4" gltf-model="#cherrycake4-model" visible="false"></a-entity>
+            <a-entity id="strawberrycake" gltf-model="strawberrycake.glb" visible="false"></a-entity>
+            <a-entity id="blueberrycake" gltf-model="blueberrycake.glb" visible="false"></a-entity>
+            <a-entity id="cherrycake1" gltf-model="cherrycake1.glb" visible="false"></a-entity>
+            <a-entity id="cherrycake2" gltf-model="cherrycake2.glb" visible="false"></a-entity>
+            <a-entity id="cherrycake3" gltf-model="cherrycake3.glb" visible="false"></a-entity>
+            <a-entity id="cherrycake4" gltf-model="cherrycake4.glb" visible="false"></a-entity>
         </a-entity>
 
-        <a-sound id="mainmusic" src="#baking-music" autoplay="false" loop="true"></a-sound>
+        <a-sound id="mainmusic" src="baking cooking jazz.mp3" autoplay="false" loop="true"></a-sound>
     </a-scene>
 
     <script>
