@@ -3,9 +3,9 @@
 
 <head>
   <title>Bake your cake</title>
-  <!-- A-Frame Core -->
+  <!-- A-Frame core library -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <!-- A-Frame PhysX - The Physics Engine -->
+  <!-- A-Frame PhysX (for physics) -->
   <script src="https://cdn.jsdelivr.net/npm/aframe-physx@0.4.0/dist/aframe-physx.min.js"></script>
 
   <style>
@@ -129,20 +129,25 @@
 </head>
 
 <body>
+  <!-- Start screen with Start button -->
   <div id="startScreen">
     <h1 style="color:white;">Bake your cake</h1>
     <button onclick="startGame()">Start</button>
   </div>
 
+  <!-- Cake choice screen -->
   <div id="cakeChoices">
     <div id="chocolateTab" class="cake-tab" onclick="chooseCake('chocolate')">Chocolate Cake</div>
     <div id="blueberryTab" class="cake-tab" onclick="chooseCake('blueberry')">Blueberry Cake</div>
     <div id="cherryTab" class="cake-tab" onclick="chooseCake('cherry')">Cherry Cake</div>
   </div>
 
+  <!-- Recipe panel shown when cake is chosen -->
   <div id="recipePanel"></div>
 
+  <!-- The main A-Frame scene, initially hidden -->
   <a-scene physx="gravity: 0 -9.8 0;" style="display:none;" embedded>
+    <!-- Asset declarations (replace with actual URLs or paths to your models) -->
     <a-assets>
     	<a-asset-item id="backwall-model" src="backwall.glb"></a-asset-item>
         <a-asset-item id="frontwall-model" src="frontwall.glb"></a-asset-item>
@@ -187,15 +192,16 @@
             <a-sound id="baking-music" src="baking cooking jazz.mp3"></a-sound>
         </a-assets>
 
-	  
+    <!-- Player rig and camera with cursor and raycaster -->
     <a-entity id="player-rig" position="0 45 5">
       <a-entity id="player-camera" camera position="0 0 0" cursor="rayOrigin: mouse;"
         raycaster="objects: .grabbable, .droppable"></a-entity>
     </a-entity>
 
-    <!-- Mixing bowl as droppable -->
-    <a-entity id="mixingbowl" gltf-model="#mixingbowl-model" position="0 0 0" class="droppable" droppable></a-entity>
-	<!-- Draggable Ingredients -->
+    <!-- Mixing bowl is the droppable area -->
+    <a-entity id="mixingbowl" gltf-model="mixingbowl.glb" class="droppable" droppable></a-entity>
+
+    <!-- Draggable Ingredients -->
         	<a-entity id="vanilla" gltf-model="vanilla.glb" class="grabbable" data-name="vanilla"></a-entity>
         	<a-entity id="spatula" gltf-model="spatula.glb" class="grabbable" data-name="spatula"></a-entity>
         	<a-entity id="whisk" gltf-model="whisk.glb" class="grabbable" data-name="whisk"></a-entity>
@@ -212,27 +218,30 @@
         	<a-entity id="chocolate" gltf-model="chocolate.glb" class="grabbable" data-name="chocolate"></a-entity>
   </a-scene>
 
+
   <script>
     let currentIngredients = [];
     let collectedIngredients = [];
     let selectedCake = '';
     let grabbedEl = null;
 
-    const cursor = document.querySelector('[cursor]');
     const camera = document.getElementById('player-camera');
     const mixingBowl = document.getElementById('mixingbowl');
 
-    // Start the game UI
+    // Show cake choices and scene when Start is pressed
     function startGame() {
       document.getElementById('startScreen').style.display = 'none';
       document.getElementById('cakeChoices').style.display = 'flex';
+      const scene = document.querySelector('a-scene');
+      if (scene) {
+        scene.style.display = 'block';
+      }
     }
 
-    // Choose cake and show recipe
+    // Choose cake and update recipe panel
     function chooseCake(cakeName) {
       selectedCake = cakeName;
       document.getElementById('cakeChoices').style.display = 'none';
-      document.querySelector('a-scene').style.display = 'block';
       const recipePanel = document.getElementById('recipePanel');
       recipePanel.style.display = 'block';
       recipePanel.className = cakeName;
@@ -251,12 +260,12 @@
         `<ul>${currentIngredients.map(i => `<li id="recipe-${i}">${i}</li>`).join('')}</ul>`;
     }
 
-    // Handling grabbing and dropping logic with "E" key
+    // Grab/drop ingredient on pressing "E"
     window.addEventListener('keydown', function (e) {
       if (e.key.toLowerCase() !== 'e') return;
 
       if (!grabbedEl) {
-        // Attempt to grab an intersected grabbable entity
+        // Grab grabbable object under cursor
         let intersected = null;
         const intersects = camera.components.raycaster.intersections;
         if (intersects.length > 0) {
@@ -265,25 +274,21 @@
         }
         if (intersected) {
           grabbedEl = intersected;
-          // Attach grabbed entity to camera and position slightly in front
           grabbedEl.object3D.position.set(0, -0.5, -1);
           camera.object3D.add(grabbedEl.object3D);
         }
       } else {
-        // Try to drop the currently grabbed entity
-        // Check if looking at mixing bowl
+        // Drop the grabbed object
         let lookingAtBowl = false;
         const intersects = camera.components.raycaster.intersections;
         if (intersects.length > 0) {
           lookingAtBowl = intersects.some(i => i.object.el === mixingBowl);
         }
-        // Remove from camera and reparent in scene or mixing bowl
         if (lookingAtBowl) {
           mixingBowl.object3D.add(grabbedEl.object3D);
           grabbedEl.object3D.position.set(0, 0.2, 0);
           markIngredientCollected(grabbedEl.getAttribute('data-name'));
         } else {
-          // Drop in front of player in scene root
           document.querySelector('a-scene').object3D.add(grabbedEl.object3D);
           const camPos = camera.object3D.position;
           grabbedEl.object3D.position.set(camPos.x, camPos.y - 0.5, camPos.z - 1);
@@ -292,7 +297,7 @@
       }
     });
 
-    // Mark ingredient collected and update recipe panel
+    // Update recipe UI when ingredient is collected
     function markIngredientCollected(name) {
       if (currentIngredients.includes(name) && !collectedIngredients.includes(name)) {
         collectedIngredients.push(name);
@@ -302,13 +307,13 @@
       }
     }
 
-    // Check if cake is completed
+    // Check if all ingredients collected to finish the cake
     function checkCompletion() {
       const allCollected = currentIngredients.length === collectedIngredients.length &&
         currentIngredients.every(x => collectedIngredients.includes(x));
       if (allCollected) {
         alert("All ingredients collected! Cake is ready!");
-        // Enhance with showing cake or next steps
+        // Additional logic for cake reveal goes here
       }
     }
   </script>
