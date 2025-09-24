@@ -6,10 +6,9 @@
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <!-- A-Frame PhysX - The Physics Engine. Essential for gravity and collisions. -->
     <script src="https://cdn.jsdelivr.net/npm/aframe-physx@0.4.0/dist/aframe-physx.min.js"></script>
-    <!-- A-Frame Super Hands for Drag-and-Drop, replacing A-Frame Extras -->
+    <!-- A-Frame Super Hands for Drag-and-Drop -->
     <script src="//cdn.jsdelivr.net/gh/n5ro/aframe-physics-extras@v0.1.2/dist/aframe-physics-extras.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-super-hands-component@3.0.1/dist/super-hands.min.js"></script>
-    
     <style>
         body, html { margin:0; padding:0; height:100%; width:100%; font-family:sans-serif; overflow: hidden; }
         #startScreen, #cakeChoices { position:absolute; top:0; left:0; width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; background-size:cover; z-index:10; }
@@ -46,6 +45,7 @@
     <a-scene id="scene" physx="gravity: 0 -9.8 0;" style="display:none;" cursor="rayOrigin: mouse; fuse: false">
         <!-- Asset management system. All assets (models, sounds) are pre-loaded here. -->
         <a-assets>
+             <a-assets>
             <a-asset-item id="backwall-model" src="backwall.glb"></a-asset-item>
             <a-asset-item id="frontwall-model" src="frontwall.glb"></a-asset-item>
             <a-asset-item id="rightwall-model" src="rightwall.glb"></a-asset-item>
@@ -86,17 +86,18 @@
             <a-asset-item id="chocolate-model" src="chocolate.glb"></a-asset-item>
             <a-sound id="baking-music" src="baking cooking jazz.mp3"></a-sound>
         </a-assets>
+            <a-sound id="baking-music" src="baking cooking jazz.mp3"></a-sound>
+        </a-assets>
 
-        <!-- Player Rig with PhysX for collision and Super Hands for drag-and-drop -->
+        <!-- Player Rig -->
         <a-entity id="player-rig"
                   position="0 45 5"
                   wasd-controls="acceleration: 100;"
                   look-controls
-                  physx-body="type: kinematic; height: 1.6; radius: 0.5;"
-                  physx-shape="type: capsule; fit: manual; height: 1.6; radius: 0.5;">
-            <!-- The camera is the player's eyes -->
-            <!-- We've corrected the `super-hands` buttons here to make grabbing more natural. -->
-            <a-entity id="player-camera" camera position="0 0 0" super-hands="grabStartButtons: mousedown; grabEndButtons: mouseup;">
+                  physx-body="type: kinematic; height: 45; radius: 0.5;"
+                  physx-shape="type: capsule; fit: manual; height: 45; radius: 0.5;">
+            <a-entity id="player-camera" camera position="0 0 0"
+                      super-hands="grabStartButtons: mousedown; grabEndButtons: mouseup;">
                 <a-entity cursor="rayOrigin: mouse; fuse: false; objects: .grabbable"
                           raycaster="objects: .grabbable, .droppable"
                           position="0 0 -1"
@@ -109,13 +110,12 @@
         <a-entity light="type:ambient; intensity:0.5"></a-entity>
         <a-entity light="type:directional; intensity:0.8" position="0 2 1"></a-entity>
 
-        <!-- Invisible physical floor that objects will fall onto -->
+        <!-- Physical floor -->
         <a-plane id="physical-floor" position="0 0 0" rotation="-90 0 0" width="50" height="50" visible="false"
                  physx-body="type: static;"
                  physx-shape="type: plane;">
         </a-plane>
 
-        <!-- Kitchen Fixtures with PhysX bodies for collision -->
         <a-entity id="backwall" gltf-model="backwall.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
         <a-entity id="frontwall" gltf-model="frontwall.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
         <a-entity id="rightwall" gltf-model="rightwall.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
@@ -133,27 +133,29 @@
         <a-entity id="eggcarton" gltf-model="eggcarton.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
         <a-entity id="cuttingboard" gltf-model="cuttingboard.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
         <a-entity id="knife" gltf-model="knife.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
-       
-       <a-entity id="mixingbowl" gltf-model="mixingbowl.glb" physx-body="type: static;" physx-shape="type: cylinder;" class="droppable"></a-entity>
 
-        <!-- Draggable Ingredients -->
-        <a-entity id="vanilla" gltf-model="vanilla.glb" class="grabbable" data-name="vanilla" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="spatula" gltf-model="spatula.glb" class="grabbable" data-name="spatula" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="whisk" gltf-model="whisk.glb" class="grabbable" data-name="whisk" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="strawberry" gltf-model="strawberry.glb" class="grabbable" data-name="strawberry" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="banana" gltf-model="banana.glb" class="grabbable" data-name="banana" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="salt" gltf-model="salt.glb" class="grabbable" data-name="salt" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="flour" gltf-model="flour.glb" class="grabbable" data-name="flour" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="sugar" gltf-model="sugar.glb" class="grabbable" data-name="sugar" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="butter" gltf-model="butter.glb" class="grabbable" data-name="butter" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="milk" gltf-model="milk.glb" class="grabbable" data-name="milk" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="egg" gltf-model="egg.glb" class="grabbable" data-name="egg" physx-body="type: dynamic;" physx-shape="type: sphere; radius: 0.04;"></a-entity>
-        <a-entity id="blueberry" gltf-model="blueberry.glb" class="grabbable" data-name="blueberry" physx-body="type: dynamic;" physx-shape="type: sphere; radius: 0.03;"></a-entity>
-        <a-entity id="cherries" gltf-model="cherries.glb" class="grabbable" data-name="cherries" physx-body="type: dynamic;" physx-shape="type: sphere; radius: 0.03;"></a-entity>
-        <a-entity id="chocolate" gltf-model="chocolate.glb" class="grabbable" data-name="chocolate" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        <a-entity id="mixingbowl" gltf-model="mixingbowl.glb" physx-body="type: static;" physx-shape="type: cylinder;" class="droppable"></a-entity>
+
+        <!-- Draggable ingredients (keep your existing) -->
+	<!-- Draggable Ingredients -->
+        	<a-entity id="vanilla" gltf-model="vanilla.glb" class="grabbable" data-name="vanilla" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        	<a-entity id="spatula" gltf-model="spatula.glb" class="grabbable" data-name="spatula" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        	<a-entity id="whisk" gltf-model="whisk.glb" class="grabbable" data-name="whisk" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        	<a-entity id="strawberry" gltf-model="strawberry.glb" class="grabbable" data-name="strawberry" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        	<a-entity id="banana" gltf-model="banana.glb" class="grabbable" data-name="banana" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        	<a-entity id="salt" gltf-model="salt.glb" class="grabbable" data-name="salt" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        	<a-entity id="flour" gltf-model="flour.glb" class="grabbable" data-name="flour" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        	<a-entity id="sugar" gltf-model="sugar.glb" class="grabbable" data-name="sugar" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        	<a-entity id="butter" gltf-model="butter.glb" class="grabbable" data-name="butter" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        	<a-entity id="milk" gltf-model="milk.glb" class="grabbable" data-name="milk" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        	<a-entity id="egg" gltf-model="egg.glb" class="grabbable" data-name="egg" physx-body="type: dynamic;" physx-shape="type: sphere; radius: 0.04;"></a-entity>
+        	<a-entity id="blueberry" gltf-model="blueberry.glb" class="grabbable" data-name="blueberry" physx-body="type: dynamic;" physx-shape="type: sphere; radius: 0.03;"></a-entity>
+        	<a-entity id="cherries" gltf-model="cherries.glb" class="grabbable" data-name="cherries" physx-body="type: dynamic;" physx-shape="type: sphere; radius: 0.03;"></a-entity>
+        	<a-entity id="chocolate" gltf-model="chocolate.glb" class="grabbable" data-name="chocolate" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
         
-        <!-- Final Cake Container - position attribute removed and model names updated -->
-        <a-entity id="final-cake-container" visible="false">
+
+        <!-- Final Cake Container with models (keep your existing) -->
+            <a-entity id="final-cake-container" visible="false">
             <a-entity id="strawberrycake" gltf-model="strawberrycake.glb" visible="false"></a-entity>
             <a-entity id="blueberrycake" gltf-model="blueberrycake.glb" visible="false"></a-entity>
             <a-entity id="cherrycake1" gltf-model="cherrycake1.glb" visible="false"></a-entity>
@@ -165,93 +167,6 @@
         <a-sound id="mainmusic" src="baking cooking jazz.mp3" autoplay="false" loop="true"></a-sound>
     </a-scene>
 
-    <script>
-        let currentIngredients = [];
-        let collectedIngredients = [];
-        let selectedCake = '';
-
-        // Add a listener for the drop event on the mixing bowl
-        document.getElementById('mixingbowl').addEventListener('collided', (e) => {
-            const droppedEl = e.detail.body.el;
-            if (!droppedEl.classList.contains('grabbable')) return;
-
-            const ingredientName = droppedEl.getAttribute('data-name');
-            if (currentIngredients.includes(ingredientName) && !collectedIngredients.includes(ingredientName)) {
-                collectedIngredients.push(ingredientName);
-                
-                const li = document.getElementById(`recipe-${ingredientName}`);
-                if(li) {
-                    li.classList.add('collected');
-                }
-
-                droppedEl.setAttribute('visible', 'false');
-                checkCompletion();
-            }
-        });
-
-        function startGame(){
-            document.getElementById('startScreen').style.display='none';
-            document.getElementById('cakeChoices').style.display='flex';
-            const music = document.querySelector('#mainmusic');
-            if(music && music.components.sound && !music.components.sound.isPlaying){
-                music.components.sound.playSound();
-            }
-        }
-
-        function chooseCake(cakeName){
-            selectedCake = cakeName;
-            document.getElementById('cakeChoices').style.display='none';
-            document.getElementById('scene').style.display='block';
-            const recipePanel = document.getElementById('recipePanel');
-            recipePanel.style.display='block';
-            recipePanel.className = cakeName;
-            const baseIngredients = ["flour", "sugar", "butter", "milk", "egg"];
-            if(cakeName === 'blueberry'){
-                currentIngredients = [...baseIngredients, "blueberry"];
-            } else if(cakeName === 'chocolate'){
-                currentIngredients = [...baseIngredients, "chocolate"];
-            } else if(cakeName === 'cherry'){
-                currentIngredients = [...baseIngredients, "cherries"];
-            }
-            recipePanel.innerHTML = `<h2>${cakeName.charAt(0).toUpperCase() + cakeName.slice(1)} Cake</h2>
-                <ul>${currentIngredients.map(i => `<li id="recipe-${i}">${i}</li>`).join('')}</ul>`;
-        }
-
-        function checkCompletion() {
-            const allCollected = currentIngredients.length === collectedIngredients.length && 
-                                 currentIngredients.every(item => collectedIngredients.includes(item));
-            if (allCollected) {
-                setTimeout(showFinalCake, 1000);
-            }
-        }
-
-        function showFinalCake() {
-            const ingredientsToHide = document.querySelectorAll('.grabbable');
-            ingredientsToHide.forEach(ing => {
-                if (currentIngredients.includes(ing.dataset.name)) {
-                    ing.setAttribute('visible', 'false');
-                }
-            });
-            document.getElementById('mixingbowl').setAttribute('visible', 'false');
-            
-            const finalCakeContainer = document.getElementById('final-cake-container');
-            finalCakeContainer.setAttribute('visible', 'true');
-            
-            if (selectedCake === 'chocolate') {
-                const cakeModel = document.getElementById('chocolatecake');
-                cakeModel.setAttribute('visible', 'true');
-            } else if (selectedCake === 'blueberry') {
-                const cakeModel = document.getElementById('blueberrycake');
-                cakeModel.setAttribute('visible', 'true');
-            } else if (selectedCake === 'cherry') {
-                document.getElementById('cherrycake1').setAttribute('visible', 'true');
-                document.getElementById('cherrycake2').setAttribute('visible', 'true');
-                document.getElementById('cherrycake3').setAttribute('visible', 'true');
-                document.getElementById('cherrycake4').setAttribute('visible', 'true');
-            }
-            
-            finalCakeContainer.setAttribute('animation', { property: 'scale', from: '0.01 0.01 0.01', to: '1 1 1', dur: 1500, easing: 'easeOutElastic' });
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
