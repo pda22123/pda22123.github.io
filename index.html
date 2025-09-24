@@ -4,10 +4,11 @@
     <title>Bake your cake</title>
     <!-- A-Frame Core -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <!-- A-Frame PhysX - The Physics Engine -->
+    <!-- A-Frame PhysX - The Physics Engine. Essential for gravity and collisions. -->
     <script src="https://cdn.jsdelivr.net/npm/aframe-physx@0.4.0/dist/aframe-physx.min.js"></script>
-    <!-- A-Frame Extras for Drag-and-Drop -->
-    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v7.1.0/dist/aframe-extras.min.js"></script>
+    <!-- A-Frame Super Hands for Drag-and-Drop, replacing A-Frame Extras -->
+    <script src="//cdn.jsdelivr.net/gh/n5ro/aframe-physics-extras@v0.1.2/dist/aframe-physics-extras.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-super-hands-component@3.0.1/dist/super-hands.min.js"></script>
     
     <style>
         body, html { margin:0; padding:0; height:100%; width:100%; font-family:sans-serif; overflow: hidden; }
@@ -75,18 +76,33 @@
             <a-asset-item id="cherrycake2-model" src="cherrycake2.glb"></a-asset-item>
             <a-asset-item id="cherrycake3-model" src="cherrycake3.glb"></a-asset-item>
             <a-asset-item id="cherrycake4-model" src="cherrycake4.glb"></a-asset-item>
-            <a-asset-item id="baking-music" src="baking cooking jazz.mp3"></a-asset-item>
+            <a-asset-item id="flour-model" src="flour.glb"></a-asset-item>
+            <a-asset-item id="sugar-model" src="sugar.glb"></a-asset-item>
+            <a-asset-item id="butter-model" src="butter.glb"></a-asset-item>
+            <a-asset-item id="milk-model" src="milk.glb"></a-asset-item>
+            <a-asset-item id="egg-model" src="egg.glb"></a-asset-item>
+            <a-asset-item id="blueberry-model" src="blueberry.glb"></a-asset-item>
+            <a-asset-item id="cherries-model" src="cherries.glb"></a-asset-item>
+            <a-asset-item id="chocolate-model" src="chocolate.glb"></a-asset-item>
+            <a-sound id="baking-music" src="baking cooking jazz.mp3"></a-sound>
         </a-assets>
 
-        <!-- Player Rig with PhysX for collision -->
+        <!-- Player Rig with PhysX for collision and Super Hands for drag-and-drop -->
         <a-entity id="player-rig"
-                  position="0 45 5"
+                  position="0 1.6 5"
                   wasd-controls="acceleration: 100;"
                   look-controls
                   physx-body="type: kinematic; height: 1.6; radius: 0.5;"
                   physx-shape="type: capsule; fit: manual; height: 1.6; radius: 0.5;">
             <!-- The camera is the player's eyes -->
-            <a-entity id="player-camera" camera position="0 0 0"></a-entity>
+            <!-- We've corrected the `super-hands` buttons here to make grabbing more natural. -->
+            <a-entity id="player-camera" camera position="0 0 0" super-hands="grabStartButtons: mousedown; grabEndButtons: mouseup;">
+                <a-entity cursor="rayOrigin: mouse; fuse: false; objects: .grabbable"
+                          raycaster="objects: .grabbable, .droppable"
+                          position="0 0 -1"
+                          geometry="primitive: ring; radiusOuter: 0.02; radiusInner: 0.01"
+                          material="color: white; shader: flat"></a-entity>
+            </a-entity>
         </a-entity>
 
         <!-- Lights -->
@@ -118,23 +134,23 @@
         <a-entity id="cuttingboard" gltf-model="cuttingboard.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
         <a-entity id="knife" gltf-model="knife.glb" physx-body="type: static;" physx-shape="type: box;"></a-entity>
        
-        <a-entity id="mixingbowl" gltf-model="#mixingbowl-model" droppable physx-body="type: static;" physx-shape="type: cylinder;"></a-entity>
+       <a-entity id="mixingbowl" gltf-model="mixingbowl.glb" physx-body="type: static;" physx-shape="type: cylinder;" class="droppable"></a-entity>
 
         <!-- Draggable Ingredients -->
-         <a-entity id="vanilla" gltf-model="vanilla.glb" class="ingredient" draggable data-name="vanilla" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="spatula" gltf-model="spatula.glb" class="ingredient" draggable data-name="spatula" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="whisk" gltf-model="whisk.glb" class="ingredient" draggable data-name="whisk" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="strawberry" gltf-model="strawberry.glb" class="ingredient" draggable data-name="banana" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="banana" gltf-model="banana.glb" class="ingredient" draggable data-name="banana" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="salt" gltf-model="salt.glb" class="ingredient" draggable data-name="salt" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="flour" gltf-model="flour.glb" class="ingredient" draggable data-name="flour" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="sugar" gltf-model="sugar.glb" class="ingredient" draggable data-name="sugar" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="butter" gltf-model="butter.glb" class="ingredient" draggable data-name="butter" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="milk" gltf-model="milk.glb" class="ingredient" draggable data-name="milk" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
-        <a-entity id="egg" gltf-model="egg.glb" class="ingredient" draggable data-name="egg" physx-body="type: dynamic;" physx-shape="type: sphere; radius: 0.04;"></a-entity>
-        <a-entity id="blueberry" gltf-model="blueberry.glb" class="ingredient" draggable data-name="blueberry" physx-body="type: dynamic;" physx-shape="type: sphere; radius: 0.03;"></a-entity>
-        <a-entity id="cherries" gltf-model="cherries.glb" class="ingredient" draggable data-name="cherries" physx-body="type: dynamic;" physx-shape="type: sphere; radius: 0.03;"></a-entity>
-        <a-entity id="chocolate" gltf-model="chocolate.glb" class="ingredient" draggable data-name="chocolate" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        <a-entity id="vanilla" gltf-model="vanilla.glb" class="grabbable" data-name="vanilla" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        <a-entity id="spatula" gltf-model="spatula.glb" class="grabbable" data-name="spatula" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        <a-entity id="whisk" gltf-model="whisk.glb" class="grabbable" data-name="whisk" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        <a-entity id="strawberry" gltf-model="strawberry.glb" class="grabbable" data-name="banana" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        <a-entity id="banana" gltf-model="banana.glb" class="grabbable" data-name="banana" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        <a-entity id="salt" gltf-model="salt.glb" class="grabbable" data-name="salt" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        <a-entity id="flour" gltf-model="flour.glb" class="grabbable" data-name="flour" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        <a-entity id="sugar" gltf-model="sugar.glb" class="grabbable" data-name="sugar" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        <a-entity id="butter" gltf-model="butter.glb" class="grabbable" data-name="butter" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        <a-entity id="milk" gltf-model="milk.glb" class="grabbable" data-name="milk" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
+        <a-entity id="egg" gltf-model="egg.glb" class="grabbable" data-name="egg" physx-body="type: dynamic;" physx-shape="type: sphere; radius: 0.04;"></a-entity>
+        <a-entity id="blueberry" gltf-model="blueberry.glb" class="grabbable" data-name="blueberry" physx-body="type: dynamic;" physx-shape="type: sphere; radius: 0.03;"></a-entity>
+        <a-entity id="cherries" gltf-model="cherries.glb" class="grabbable" data-name="cherries" physx-body="type: dynamic;" physx-shape="type: sphere; radius: 0.03;"></a-entity>
+        <a-entity id="chocolate" gltf-model="chocolate.glb" class="grabbable" data-name="chocolate" physx-body="type: dynamic;" physx-shape="type: box;"></a-entity>
         
         <!-- Final Cake Container - position attribute removed and model names updated -->
         <a-entity id="final-cake-container" visible="false">
@@ -154,38 +170,22 @@
         let collectedIngredients = [];
         let selectedCake = '';
 
-        AFRAME.registerComponent('draggable', {
-            init: function () {
-                this.el.classList.add('clickable');
-            }
-        });
+        // Add a listener for the drop event on the mixing bowl
+        document.getElementById('mixingbowl').addEventListener('collided', (e) => {
+            const droppedEl = e.detail.body.el;
+            if (!droppedEl.classList.contains('grabbable')) return;
 
-        AFRAME.registerComponent('droppable', {
-            init: function () {
-                this.el.addEventListener('drag-drop', (e) => {
-                    const droppedEl = e.detail.dropped;
-                    const ingredientName = droppedEl.getAttribute('data-name');
-                    
-                    if (currentIngredients.includes(ingredientName) && !collectedIngredients.includes(ingredientName)) {
-                        collectedIngredients.push(ingredientName);
-                        
-                        const li = document.getElementById(`recipe-${ingredientName}`);
-                        if(li) {
-                            li.classList.add('collected');
-                        }
+            const ingredientName = droppedEl.getAttribute('data-name');
+            if (currentIngredients.includes(ingredientName) && !collectedIngredients.includes(ingredientName)) {
+                collectedIngredients.push(ingredientName);
+                
+                const li = document.getElementById(`recipe-${ingredientName}`);
+                if(li) {
+                    li.classList.add('collected');
+                }
 
-                        const bowlPosition = this.el.getAttribute('position');
-                        droppedEl.setAttribute('animation', {
-                            property: 'position',
-                            to: `${bowlPosition.x} ${bowlPosition.y + 0.2} ${bowlPosition.z}`,
-                            dur: 500,
-                            easing: 'easeInQuad'
-                        });
-                        setTimeout(() => { droppedEl.setAttribute('visible', 'false'); }, 500);
-                        
-                        checkCompletion();
-                    }
-                });
+                droppedEl.setAttribute('visible', 'false');
+                checkCompletion();
             }
         });
 
@@ -226,32 +226,30 @@
         }
 
         function showFinalCake() {
-            const ingredientsToHide = document.querySelectorAll('.ingredient');
+            const ingredientsToHide = document.querySelectorAll('.grabbable');
             ingredientsToHide.forEach(ing => {
                 if (currentIngredients.includes(ing.dataset.name)) {
-                    ing.setAttribute('animation__fade', { property: 'components.material.material.opacity', to: 0, dur: 1500 });
+                    ing.setAttribute('visible', 'false');
                 }
             });
-            document.getElementById('mixingbowl').setAttribute('animation__fade', { property: 'components.material.material.opacity', to: 0, dur: 1500 });
-            const bowl = document.getElementById('mixingbowl');
-            const finalCakeContainer = document.getElementById('final-cake-container');
-            finalCakeContainer.setAttribute('position', bowl.getAttribute('position'));
+            document.getElementById('mixingbowl').setAttribute('visible', 'false');
             
-            // Handle the different cake models based on selection
+            const finalCakeContainer = document.getElementById('final-cake-container');
+            finalCakeContainer.setAttribute('visible', 'true');
+            
             if (selectedCake === 'chocolate') {
-                const cakeModel = document.getElementById('chocolate-cake-model');
+                const cakeModel = document.getElementById('chocolatecake');
                 cakeModel.setAttribute('visible', 'true');
             } else if (selectedCake === 'blueberry') {
-                const cakeModel = document.getElementById('blueberry-cake-model');
+                const cakeModel = document.getElementById('blueberrycake');
                 cakeModel.setAttribute('visible', 'true');
             } else if (selectedCake === 'cherry') {
-                document.getElementById('cherry-cake-model1').setAttribute('visible', 'true');
-                document.getElementById('cherry-cake-model2').setAttribute('visible', 'true');
-                document.getElementById('cherry-cake-model3').setAttribute('visible', 'true');
-                document.getElementById('cherry-cake-model4').setAttribute('visible', 'true');
+                document.getElementById('cherrycake1').setAttribute('visible', 'true');
+                document.getElementById('cherrycake2').setAttribute('visible', 'true');
+                document.getElementById('cherrycake3').setAttribute('visible', 'true');
+                document.getElementById('cherrycake4').setAttribute('visible', 'true');
             }
-
-            finalCakeContainer.setAttribute('visible', 'true');
+            
             finalCakeContainer.setAttribute('animation', { property: 'scale', from: '0.01 0.01 0.01', to: '1 1 1', dur: 1500, easing: 'easeOutElastic' });
         }
     </script>
